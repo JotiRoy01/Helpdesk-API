@@ -1,0 +1,112 @@
+from rest_framework import serializers
+
+from apps.categories.models import Category
+
+from .constants import TicketPriority, TicketStatus
+from .models import Ticket
+
+
+class TicketCreateSerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(is_active=True),
+    )
+
+    class Meta:
+        model = Ticket
+
+        fields = (
+            "title",
+            "description",
+            "category",
+            "priority",
+        )
+
+    def validate_title(self, value):
+        value = value.strip()
+
+        if len(value) < 5:
+            raise serializers.ValidationError(
+                "Title must contain at least 5 characters."
+            )
+
+        return value
+
+    def validate_description(self, value):
+        value = value.strip()
+
+        if len(value) < 10:
+            raise serializers.ValidationError(
+                "Description must contain at least 10 characters."
+            )
+
+        return value
+
+
+
+
+
+class TicketDetailSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(
+        source="category.name",
+        read_only=True,
+    )
+
+    creator_name = serializers.SerializerMethodField()
+
+    assigned_agent_name = serializers.SerializerMethodField()
+
+    is_overdue = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Ticket
+
+        fields = (
+            "id",
+            "title",
+            "description",
+            "category",
+            "category_name",
+            "priority",
+            "status",
+            "creator",
+            "creator_name",
+            "assigned_agent",
+            "assigned_agent_name",
+            "due_at",
+            "is_overdue",
+            "resolved_at",
+            "closed_at",
+            "created_at",
+            "updated_at",
+        )
+
+        read_only_fields = fields
+
+    def get_creator_name(self, obj):
+        return (
+            f"{obj.creator.first_name} "
+            f"{obj.creator.last_name}"
+        ).strip()
+
+    def get_assigned_agent_name(self, obj):
+        if not obj.assigned_agent:
+            return None
+
+        return (
+            f"{obj.assigned_agent.first_name} "
+            f"{obj.assigned_agent.last_name}"
+        ).strip()
+
+    def get_is_overdue(self, obj):
+        from django.utils import timezone
+
+        if not obj.due_at:
+            return False
+
+        if obj.status in {
+            TicketStatus.RESOLVED,
+            TicketStatus.CLOSED,
+        }:
+            return False
+
+        return timezone.now() > obj.due_at

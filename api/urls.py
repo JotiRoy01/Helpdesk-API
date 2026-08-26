@@ -10,4 +10,8 @@ urlpatterns = [
         "categories/",
         include("apps.categories.urls"),
     ),
+    path(
+        "tickets/",
+        include("apps.tickets.urls")
+    )
 ]
