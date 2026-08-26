@@ -77,3 +77,7 @@ Exit:
 
 exit()
 ```
+# Generate random JWT secret
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(64))"
+```

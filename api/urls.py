@@ -13,5 +13,9 @@ urlpatterns = [
     path(
         "tickets/",
         include("apps.tickets.urls")
-    )
+    ),
+    path(
+    "auth/",
+    include("apps.users.urls"),
+),
 ]
