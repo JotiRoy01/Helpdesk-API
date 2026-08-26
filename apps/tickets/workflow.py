@@ -60,6 +60,21 @@ class TicketWorkflow:
                 "Only admins can close tickets."
             )
 
+    @staticmethod
+    def validate_assignment(*, actor, ticket):
+        """Ensure an agent can only update their assigned tickets."""
+        if actor.role == UserRole.ADMIN:
+            return
+
+        if (
+            actor.role == UserRole.SUPPORT_AGENT
+            and ticket.assigned_agent_id is not None
+            and ticket.assigned_agent_id != actor.id
+        ):
+            raise ValidationError(
+                "Support agents can only update tickets assigned to them."
+            )
+
     @classmethod
     @transaction.atomic
     def transition(
@@ -69,6 +84,11 @@ class TicketWorkflow:
         new_status,
         actor,
     ):
+        cls.validate_assignment(
+            actor=actor,
+            ticket=ticket,
+        )
+
         cls.validate_transition(
             current_status=ticket.status,
             new_status=new_status,
