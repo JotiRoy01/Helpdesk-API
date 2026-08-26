@@ -1,0 +1,10 @@
+
+django 
+djangorestframework 
+
+mysqlclient
+
+django-environ
+djangorestframework-simplejwt
+drf-spectacular
+
