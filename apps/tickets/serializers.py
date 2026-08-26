@@ -110,3 +110,15 @@ class TicketDetailSerializer(serializers.ModelSerializer):
             return False
 
         return timezone.now() > obj.due_at
+
+
+class TicketTransitionSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(
+        choices=TicketStatus.choices,
+    )
+
+    def validate_status(self, value):
+        if value == TicketStatus.OPEN:
+            return value
+
+        return value
