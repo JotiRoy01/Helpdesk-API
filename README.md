@@ -40,3 +40,40 @@ DB_PORT=3306 # write allowed port number
 # first create apps/users folders
 python manage.py startapp users apps/users
 ```
+
+# Verify database connectivity through Django shell
+```bash
+Run:
+
+python manage.py shell
+
+Then:
+
+from django.db import connection
+
+connection.vendor
+
+Expected:
+
+'mysql'
+
+Then:
+
+connection.settings_dict["NAME"]
+
+Expected:
+
+'helpdesk'
+
+Then:
+
+from apps.users.models import User
+
+User.objects.count()
+
+If you created your superuser and test users in Step 3, this should return the corresponding count.
+
+Exit:
+
+exit()
+```

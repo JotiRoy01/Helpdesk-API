@@ -8,22 +8,25 @@ class HealthCheckView(APIView):
     permission_classes = []
 
     def get(self, request):
-        database_status = "ok"
+        services = {
+            "database": "ok",
+        }
 
         try:
             with connection.cursor() as cursor:
                 cursor.execute("SELECT 1")
         except Exception:
-            database_status = "error"
+            services["database"] = "error"
 
-        status_code = 200 if database_status == "ok" else 503
+        healthy = all(
+            status == "ok"
+            for status in services.values()
+        )
 
         return Response(
             {
-                "status": "ok" if status_code == 200 else "degraded",
-                "services": {
-                    "database": database_status,
-                },
+                "status": "ok" if healthy else "degraded",
+                "services": services,
             },
-            status=status_code,
+            status=200 if healthy else 503,
         )
