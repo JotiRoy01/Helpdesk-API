@@ -34,3 +34,9 @@ DB_PASSWORD=mysql # write the password
 DB_HOST=127.0.0.1 # write allowed host address
 DB_PORT=3306 # write allowed port number
 ```
+
+# Create Django app
+```bash
+# first create apps/users folders
+python manage.py startapp users apps/users
+```
