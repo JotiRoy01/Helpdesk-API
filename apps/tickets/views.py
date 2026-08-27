@@ -26,6 +26,7 @@ from .serializers import (
 from .selectors import (
     get_ticket_by_id,
     get_ticket_for_update,
+    get_visible_ticket_by_id,
     get_visible_tickets_for_user,
 )
 
@@ -114,14 +115,16 @@ class TicketDetailView(
         TicketAccessPermission,
     ]
 
-    # def get_object(self):
-    #     return get_ticket_by_id(
-    #         self.kwargs["pk"],
-    #     )
+    def get_object(self):
+        return get_visible_ticket_by_id(
+            ticket_id=self.kwargs["pk"],
+            user=self.request.user,
+        )
+
     def get_queryset(self):
         return get_visible_tickets_for_user(
-        user=self.request.user,
-    )
+            user=self.request.user,
+        )
 
 
 class TicketTransitionView(APIView):
@@ -138,7 +141,10 @@ class TicketTransitionView(APIView):
             raise_exception=True,
         )
 
-        ticket = get_ticket_by_id(pk)
+        ticket = get_visible_ticket_by_id(
+            ticket_id=pk,
+            user=request.user,
+        )
 
         ticket = TicketWorkflow.transition(
             ticket=ticket,

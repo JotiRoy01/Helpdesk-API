@@ -11,6 +11,16 @@ from .constants import (
     TicketStatus,
 )
 
+from apps.common.exceptions import (
+    DomainValidationError,
+    DomainPermissionError,
+)
+
+from .exceptions import (
+    InvalidTicketTransitionError,
+    TicketAccessDeniedError,
+    TicketAssignmentError,
+)
 
 class TicketWorkflow:
     """
@@ -37,10 +47,9 @@ class TicketWorkflow:
 
         if new_status not in allowed_statuses:
             raise ValidationError(
-                f"Invalid transition from "
+                f"Cannot transition ticket from "
                 f"{current_status} to {new_status}."
             )
-
     @staticmethod
     def validate_actor(
         *,
@@ -53,8 +62,7 @@ class TicketWorkflow:
 
         if actor.role != UserRole.SUPPORT_AGENT:
             raise ValidationError(
-                "Only support agents and admins can "
-                "change ticket status."
+                "Only support agents or admins can change ticket status."
             )
 
         if new_status == TicketStatus.CLOSED:
@@ -68,9 +76,13 @@ class TicketWorkflow:
         if actor.role == UserRole.ADMIN:
             return
 
+        if actor.role != UserRole.SUPPORT_AGENT:
+            raise ValidationError(
+                "Only support agents or admins can update ticket assignments."
+            )
+
         if (
-            actor.role == UserRole.SUPPORT_AGENT
-            and ticket.assigned_agent_id is not None
+            ticket.assigned_agent_id is not None
             and ticket.assigned_agent_id != actor.id
         ):
             raise ValidationError(
