@@ -15,7 +15,11 @@ urlpatterns = [
         include("apps.tickets.urls")
     ),
     path(
-    "auth/",
-    include("apps.users.urls"),
-),
+        "auth/",
+        include("apps.users.urls"),
+    ),
+    path(
+        "",
+        include("apps.comments.urls"),
+    ),
 ]

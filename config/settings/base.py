@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "apps.categories.apps.CategoriesConfig",
     "apps.tickets.apps.TicketsConfig",
     "rest_framework_simplejwt.token_blacklist",
+    "apps.comments.apps.CommentsConfig",
 ]
 
 
