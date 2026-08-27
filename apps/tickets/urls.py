@@ -3,6 +3,10 @@ from django.urls import path
 from .views import (
     TicketDetailView,
     TicketListCreateView,
+    TicketTransitionView,
+    TicketAssignmentView,
+    TicketDetailView,
+    TicketListCreateView,
     TicketTransitionView
 )
 
@@ -22,5 +26,10 @@ urlpatterns = [
         "<uuid:pk>/transition/",
         TicketTransitionView.as_view(),
         name="ticket-transition",
+    ),
+    path(
+        "<uuid:pk>/assign/",
+        TicketAssignmentView.as_view(),
+        name="ticket-assign",
     ),
 ]

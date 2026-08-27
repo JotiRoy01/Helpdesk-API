@@ -123,3 +123,21 @@ class TicketWorkflow:
         )
 
         return ticket
+
+# -------------------------------
+# -------------------------------
+
+from rest_framework import serializers
+
+from apps.users.constants import UserRole
+from apps.users.models import User
+
+
+class TicketAssignmentSerializer(serializers.Serializer):
+    assigned_agent = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(
+            role=UserRole.SUPPORT_AGENT,
+            is_active=True,
+        ),
+        allow_null=False,
+    )

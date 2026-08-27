@@ -92,3 +92,29 @@ def get_ticket_for_update_for_user(
         )
 
     return queryset.none().get(id=ticket_id)
+
+# ---------------------------
+# ---------------------------
+from django.db.models import QuerySet
+
+from apps.users.constants import UserRole
+
+from .models import Ticket
+
+
+def get_ticket_for_assignment(
+    *,
+    ticket_id,
+):
+    return (
+        Ticket.objects
+        .select_for_update()
+        .select_related(
+            "category",
+            "creator",
+            "assigned_agent",
+        )
+        .get(
+            id=ticket_id,
+        )
+    )

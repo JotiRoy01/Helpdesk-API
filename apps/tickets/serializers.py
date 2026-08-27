@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from apps.categories.models import Category
+from apps.users.constants import UserRole
+from apps.users.models import User
 
 from .constants import TicketPriority, TicketStatus
 from .models import Ticket
@@ -122,3 +124,49 @@ class TicketTransitionSerializer(serializers.Serializer):
             return value
 
         return value
+
+
+class TicketAssignmentSerializer(serializers.Serializer):
+    assigned_agent = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+    )
+
+    def validate_assigned_agent(self, user):
+        if user.role != UserRole.SUPPORT_AGENT:
+            raise serializers.ValidationError(
+                "Tickets can only be assigned to support agents."
+            )
+
+        if not user.is_active:
+            raise serializers.ValidationError(
+                "Cannot assign a ticket to an inactive agent."
+            )
+
+        return user
+
+# ---------------------
+# ---------------------
+class TicketAssignmentResponseSerializer(
+    serializers.ModelSerializer
+):
+    assigned_agent_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Ticket
+
+        fields = (
+            "id",
+            "assigned_agent",
+            "assigned_agent_name",
+            "updated_at",
+        )
+
+    def get_assigned_agent_name(self, obj):
+        if not obj.assigned_agent:
+            return None
+
+        return (
+            f"{obj.assigned_agent.first_name} "
+            f"{obj.assigned_agent.last_name}"
+        ).strip()
+

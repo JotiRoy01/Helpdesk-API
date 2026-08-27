@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from apps.users.constants import UserRole
 # Create your views here.
 from rest_framework import status
 from rest_framework import generics
@@ -7,14 +7,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .permissions import (
+    CanAssignTicket,
     IsAuthenticatedTicketUser,
     TicketAccessPermission,
 )
-from .selectors import ticket_queryset
+from .selectors import ticket_queryset, get_ticket_for_assignment
 from .serializers import (
     TicketCreateSerializer,
     TicketDetailSerializer,
-    TicketTransitionSerializer
+    TicketTransitionSerializer,
+    TicketAssignmentSerializer,
 )
 
 from .selectors import (
@@ -23,7 +25,7 @@ from .selectors import (
     get_visible_tickets_for_user,
 )
 
-from .services import create_ticket
+from .services import create_ticket, assign_ticket
 from .workflow import TicketWorkflow
 
 
@@ -109,5 +111,43 @@ class TicketTransitionView(APIView):
 
         return Response(
             TicketDetailSerializer(ticket).data,
+            status=status.HTTP_200_OK,
+        )
+
+# --------------------
+# assign api view
+# --------------------
+
+class TicketAssignmentView(APIView):
+    permission_classes = [
+        CanAssignTicket,
+    ]
+
+    def post(self, request, pk):
+        serializer = TicketAssignmentSerializer(
+            data=request.data,
+        )
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
+
+        ticket = get_ticket_for_assignment(
+            ticket_id=pk,
+        )
+
+        ticket = assign_ticket(
+            ticket=ticket,
+            agent=serializer.validated_data[
+                "assigned_agent"
+            ],
+            actor=request.user,
+        )
+
+        return Response(
+            {
+                "message": "Ticket assigned successfully.",
+                "data": TicketDetailSerializer(ticket).data,
+            },
             status=status.HTTP_200_OK,
         )

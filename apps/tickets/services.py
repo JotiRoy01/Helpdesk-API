@@ -54,3 +54,47 @@ def create_ticket(
         creator=creator,
         due_at=due_at,
     )
+
+# --------------------------
+# --------------------------
+from django.db import transaction
+from django.core.exceptions import ValidationError
+
+from apps.users.constants import UserRole
+
+from .models import Ticket
+
+
+@transaction.atomic
+def assign_ticket(
+    *,
+    ticket,
+    agent,
+    actor,
+):
+    if actor.role != UserRole.ADMIN:
+        raise ValidationError(
+            "Only administrators can assign tickets."
+        )
+
+    if agent.role != UserRole.SUPPORT_AGENT:
+        raise ValidationError(
+            "Tickets can only be assigned to support agents."
+        )
+
+    if not agent.is_active:
+        raise ValidationError(
+            "Cannot assign a ticket to an inactive agent."
+        )
+
+    ticket.assigned_agent = agent
+
+    ticket.save(
+        update_fields=[
+            "assigned_agent",
+            "updated_at",
+        ]
+    )
+
+    return ticket
+
