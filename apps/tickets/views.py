@@ -86,6 +86,13 @@ class TicketListCreateView(
             description=data["description"],
             category=data["category"],
             priority=data["priority"],
+            ip_address=self.request.META.get(
+                "REMOTE_ADDR"
+            ),
+            user_agent=self.request.META.get(
+                "HTTP_USER_AGENT",
+                "",
+            ),
         )
 
         serializer.instance = ticket
@@ -137,6 +144,13 @@ class TicketTransitionView(APIView):
             ticket=ticket,
             new_status=serializer.validated_data["status"],
             actor=request.user,
+            ip_address=request.META.get(
+                "REMOTE_ADDR"
+            ),
+            user_agent=request.META.get(
+                "HTTP_USER_AGENT",
+                ""
+            ),
         )
 
         return Response(
@@ -172,6 +186,13 @@ class TicketAssignmentView(APIView):
                 "assigned_agent"
             ],
             actor=request.user,
+            ip_address = request.META.get(
+                'REMOTE_ADDR'
+            ),
+            user_agent=request.META.get(
+                "HTTP_USER_AGENT",
+                ""
+            )
         )
 
         return Response(

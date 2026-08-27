@@ -26,4 +26,8 @@ urlpatterns = [
     "dashboard/",
     include("apps.dashboard.urls"),
     ),
+    path(
+        "audit-logs/",
+        include("apps.audit.urls"),
+    ),
 ]

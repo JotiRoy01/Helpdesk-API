@@ -3,6 +3,8 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.users.constants import UserRole
+from apps.audit.constants import AuditAction
+from apps.audit.services import audit_ticket_action
 
 from .constants import (
     ALLOWED_TRANSITIONS,
@@ -83,7 +85,11 @@ class TicketWorkflow:
         ticket,
         new_status,
         actor,
+        ip_address = None,
+        user_agent = ""
     ):
+        previous_status = ticket.status
+
         cls.validate_assignment(
             actor=actor,
             ticket=ticket,
@@ -120,6 +126,16 @@ class TicketWorkflow:
                 "closed_at",
                 "updated_at",
             ]
+        )
+
+        audit_ticket_action(
+            actor=actor,
+            action=AuditAction.TICKET_STATUS_CHANGED,
+            ticket=ticket,
+            old_value={"status": previous_status},
+            new_value={"status": new_status},
+            ip_address=ip_address,
+            user_agent=user_agent,
         )
 
         return ticket

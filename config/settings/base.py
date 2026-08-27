@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "apps.comments.apps.CommentsConfig",
     "apps.dashboard.apps.DashboardConfig",
+    "apps.audit.apps.AuditConfig",
 ]
 
 

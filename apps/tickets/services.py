@@ -6,6 +6,8 @@ from django.utils import timezone
 from .constants import TicketPriority, TicketStatus
 from .models import Ticket
 from .sla import calculate_due_at
+from apps.audit.constants import AuditAction
+from apps.audit.services import audit_ticket_action
 
 
 SLA_BY_PRIORITY = {
@@ -72,7 +74,7 @@ def create_ticket(
         created_at=created_at,
     )
 
-    return Ticket.objects.create(
+    ticket = Ticket.objects.create(
         title=title.strip(),
         description=description.strip(),
         category=category,
@@ -81,6 +83,19 @@ def create_ticket(
         creator=creator,
         due_at=due_at,
     )
+
+    audit_ticket_action(
+        actor=creator,
+        action=AuditAction.TICKET_CREATED,
+        ticket=ticket,
+        new_value={
+            "status": TicketStatus.OPEN,
+            "priority": priority,
+            "category_id": str(category.id),
+        },
+    )
+
+    return ticket
 
 
 # --------------------------
@@ -99,6 +114,8 @@ def assign_ticket(
     ticket,
     agent,
     actor,
+    ip_address=None,
+    user_agent="",
 ):
     if actor.role != UserRole.ADMIN:
         raise ValidationError(
@@ -115,6 +132,7 @@ def assign_ticket(
             "Cannot assign a ticket to an inactive agent."
         )
 
+    previous_agent = ticket.assigned_agent
     ticket.assigned_agent = agent
 
     ticket.save(
@@ -122,6 +140,26 @@ def assign_ticket(
             "assigned_agent",
             "updated_at",
         ]
+    )
+
+    audit_ticket_action(
+        actor=actor,
+        action=(
+            AuditAction.TICKET_REASSIGNED
+            if previous_agent
+            else AuditAction.TICKET_ASSIGNED
+        ),
+        ticket=ticket,
+        old_value={
+            "assigned_agent": (
+                str(previous_agent.id)
+                if previous_agent
+                else None
+            )
+        },
+        new_value={"assigned_agent": str(agent.id)},
+        ip_address=ip_address,
+        user_agent=user_agent,
     )
 
     return ticket
