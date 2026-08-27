@@ -6,6 +6,7 @@ from apps.users.models import User
 
 from .constants import TicketPriority, TicketStatus
 from .models import Ticket
+from .overdue import OverdueTicketService
 
 
 class TicketCreateSerializer(serializers.ModelSerializer):
@@ -100,18 +101,21 @@ class TicketDetailSerializer(serializers.ModelSerializer):
         ).strip()
 
     def get_is_overdue(self, obj):
-        from django.utils import timezone
+        # from django.utils import timezone
 
-        if not obj.due_at:
-            return False
+        # if not obj.due_at:
+        #     return False
 
-        if obj.status in {
-            TicketStatus.RESOLVED,
-            TicketStatus.CLOSED,
-        }:
-            return False
+        # if obj.status in {
+        #     TicketStatus.RESOLVED,
+        #     TicketStatus.CLOSED,
+        # }:
+        #     return False
 
-        return timezone.now() > obj.due_at
+        # return timezone.now() > obj.due_at
+        return OverdueTicketService.is_overdue(
+            ticket=obj,
+        )
 
 
 class TicketTransitionSerializer(serializers.Serializer):
@@ -209,3 +213,5 @@ class TicketListSerializer(serializers.ModelSerializer):
             f"{obj.assigned_agent.first_name} "
             f"{obj.assigned_agent.last_name}"
         ).strip()
+
+

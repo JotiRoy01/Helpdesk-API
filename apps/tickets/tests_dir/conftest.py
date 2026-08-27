@@ -1,6 +1,8 @@
 import pytest
 
 from apps.categories.models import Category
+from apps.tickets.constants import TicketStatus
+from apps.tickets.models import Ticket
 from apps.users.constants import UserRole
 from apps.users.models import User
 
@@ -25,4 +27,15 @@ def another_customer(db):
         email="another@example.com",
         password="StrongPassword123!",
         role=UserRole.CUSTOMER,
+    )
+
+
+@pytest.fixture
+def ticket(db, customer, category):
+    return Ticket.objects.create(
+        title="VPN issue",
+        description="VPN connection is failing.",
+        category=category,
+        creator=customer,
+        status=TicketStatus.OPEN,
     )

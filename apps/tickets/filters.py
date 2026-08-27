@@ -5,6 +5,10 @@ from django.utils import timezone
 
 from .constants import TicketPriority, TicketStatus
 from .models import Ticket
+from .overdue import (
+    filter_not_overdue,
+    filter_overdue,
+)
 
 
 class TicketFilter(django_filters.FilterSet):
@@ -47,31 +51,75 @@ class TicketFilter(django_filters.FilterSet):
         )
 
     def filter_overdue(
-        self,
-        queryset,
-        name,
-        value,
+    self,
+    queryset,
+    name,
+    value,
     ):
+        from .overdue import ACTIVE_STATUSES
+
         if value is True:
             return queryset.filter(
                 due_at__lt=timezone.now(),
-            ).exclude(
-                status__in=[
-                    TicketStatus.RESOLVED,
-                    TicketStatus.CLOSED,
-                ]
+                status__in=ACTIVE_STATUSES,
             )
 
         if value is False:
-            return queryset.filter(
-                models.Q(due_at__gte=timezone.now())
-                | models.Q(due_at__isnull=True)
-                | models.Q(
-                    status__in=[
-                        TicketStatus.RESOLVED,
-                        TicketStatus.CLOSED,
-                    ]
-                )
+            return queryset.exclude(
+                due_at__lt=timezone.now(),
+                status__in=ACTIVE_STATUSES,
             )
 
         return queryset
+
+def filter_overdue(
+    self,
+    queryset,
+    name,
+    value,
+):
+    if value is True:
+        return filter_overdue(
+            queryset,
+        )
+
+    if value is False:
+        return filter_not_overdue(
+            queryset,
+        )
+
+    return queryset
+
+
+def filter_overdue(
+    self,
+    queryset,
+    name,
+    value,
+):
+    if value is True:
+        return overdue_filter(
+            queryset,
+        )
+
+    if value is False:
+        return overdue_exclude(
+            queryset,
+        )
+
+    return queryset
+
+def filter_not_overdue(
+    queryset,
+    *,
+    now=None,
+):
+    now = now or timezone.now()
+
+    from django.db.models import Q
+
+    return queryset.filter(
+        Q(due_at__gte=now)
+        | Q(due_at__isnull=True)
+        | ~Q(status__in=ACTIVE_STATUSES)
+    )
