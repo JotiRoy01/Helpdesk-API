@@ -170,3 +170,42 @@ class TicketAssignmentResponseSerializer(
             f"{obj.assigned_agent.last_name}"
         ).strip()
 
+
+# -------------------------------
+# Add a dedicated list serializer
+# -------------------------------
+class TicketListSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(
+        source="category.name",
+        read_only=True,
+    )
+
+    assigned_agent_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Ticket
+
+        fields = (
+            "id",
+            "title",
+            "category",
+            "category_name",
+            "priority",
+            "status",
+            "assigned_agent",
+            "assigned_agent_name",
+            "due_at",
+            "created_at",
+            "updated_at",
+        )
+
+        read_only_fields = fields
+
+    def get_assigned_agent_name(self, obj):
+        if not obj.assigned_agent:
+            return None
+
+        return (
+            f"{obj.assigned_agent.first_name} "
+            f"{obj.assigned_agent.last_name}"
+        ).strip()

@@ -6,6 +6,9 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics
+from .filters import TicketFilter
 from .permissions import (
     CanAssignTicket,
     IsAuthenticatedTicketUser,
@@ -15,6 +18,7 @@ from .selectors import ticket_queryset, get_ticket_for_assignment
 from .serializers import (
     TicketCreateSerializer,
     TicketDetailSerializer,
+    TicketListSerializer,
     TicketTransitionSerializer,
     TicketAssignmentSerializer,
 )
@@ -36,6 +40,32 @@ class TicketListCreateView(
         IsAuthenticatedTicketUser,
     ]
 
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.OrderingFilter,
+        filters.SearchFilter,
+    )
+
+    filterset_class = TicketFilter
+
+    search_fields = (
+        "title",
+        "description",
+        "category__name",
+    )
+
+    ordering_fields = (
+        "created_at",
+        "updated_at",
+        "priority",
+        "status",
+        "due_at",
+    )
+
+    ordering = (
+        "-created_at",
+    )
+
     def get_queryset(self):
         return get_visible_tickets_for_user(
             user=self.request.user,
@@ -45,7 +75,7 @@ class TicketListCreateView(
         if self.request.method == "POST":
             return TicketCreateSerializer
 
-        return TicketDetailSerializer
+        return TicketListSerializer
 
     def perform_create(self, serializer):
         data = serializer.validated_data
