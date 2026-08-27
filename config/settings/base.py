@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.tickets.apps.TicketsConfig",
     "rest_framework_simplejwt.token_blacklist",
     "apps.comments.apps.CommentsConfig",
+    "apps.dashboard.apps.DashboardConfig",
 ]
 
 

@@ -22,4 +22,8 @@ urlpatterns = [
         "",
         include("apps.comments.urls"),
     ),
+    path(
+    "dashboard/",
+    include("apps.dashboard.urls"),
+    ),
 ]
