@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
     "rest_framework",
     "django_filters",
+    "corsheaders",
 
     "apps.users.apps.UsersConfig",
     "apps.categories.apps.CategoriesConfig",
@@ -58,6 +59,11 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    
+    "corsheaders.middleware.CorsMiddleware",
+
+    "apps.common.middleware.RequestIDMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -197,6 +203,27 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": (
     "apps.common.exception_handler.custom_exception_handler"
     ),
+    "DEFAULT_PARSER_CLASSES": (
+        "rest_framework.parsers.JSONParser",
+    ),
+
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ),
+
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ),
+
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "60/min",
+        "user": "300/min",
+        "login": "5/min",
+        "register": "20/min",
+        "token_refresh": "20/min",
+    },
 }
 
 
@@ -234,3 +261,18 @@ LOGGING = {
         },
     },
 }
+
+
+CORS_ALLOWED_ORIGINS = env.list(
+    "CORS_ALLOWED_ORIGINS",
+    default=[],
+)
+
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[],
+)
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
