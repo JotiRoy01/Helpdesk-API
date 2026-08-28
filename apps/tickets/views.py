@@ -11,6 +11,7 @@ from rest_framework import filters, generics
 from .filters import TicketFilter
 from .permissions import (
     CanAssignTicket,
+    CanTransitionTicket,
     IsAuthenticatedTicketUser,
     TicketAccessPermission,
 )
@@ -32,6 +33,7 @@ from .selectors import (
 
 from .services import create_ticket, assign_ticket
 from .workflow import TicketWorkflow
+from apps.common.responses import success_response
 
 
 class TicketListCreateView(
@@ -98,6 +100,17 @@ class TicketListCreateView(
 
         serializer.instance = ticket
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        return success_response(
+            data=TicketDetailSerializer(serializer.instance).data,
+            message="Ticket created successfully.",
+            status_code=status.HTTP_201_CREATED,
+        )
+
 
 from rest_framework import generics
 
@@ -129,7 +142,7 @@ class TicketDetailView(
 
 class TicketTransitionView(APIView):
     permission_classes = [
-        IsAuthenticatedTicketUser,
+        CanTransitionTicket,
     ]
 
     def post(self, request, pk):

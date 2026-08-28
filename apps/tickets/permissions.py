@@ -95,4 +95,18 @@ class CanAssignTicket(BasePermission):
         )
 
 
+class CanTransitionTicket(BasePermission):
+    message = "Only support agents and administrators can transition tickets."
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role in {
+                UserRole.SUPPORT_AGENT,
+                UserRole.ADMIN,
+            }
+        )
+
+
     

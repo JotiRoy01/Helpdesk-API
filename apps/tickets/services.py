@@ -66,6 +66,8 @@ def create_ticket(
     description,
     category,
     priority,
+    ip_address=None,
+    user_agent="",
 ):
     created_at = timezone.now()
 
@@ -93,6 +95,8 @@ def create_ticket(
             "priority": priority,
             "category_id": str(category.id),
         },
+        ip_address=ip_address,
+        user_agent=user_agent,
     )
 
     return ticket
