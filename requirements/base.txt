@@ -1,10 +1,11 @@
 
-django 
-djangorestframework 
-
-mysqlclient
-
+Django
+djangorestframework
 django-environ
+django-filter
+django-cors-headers
 djangorestframework-simplejwt
 drf-spectacular
-
+mysqlclient
+celery
+redis

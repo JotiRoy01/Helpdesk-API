@@ -1,4 +1,10 @@
 
-pytest 
-pytest-django 
+-r base.txt
+
+pytest
+pytest-django
+pytest-cov
 factory-boy
+ruff
+black
+pre-commit

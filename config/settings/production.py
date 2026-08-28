@@ -1,6 +1,9 @@
 from .base import *
 
 
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_URL = "/static/"
+
 DEBUG = False
 
 SECURE_SSL_REDIRECT = True
@@ -28,6 +31,10 @@ ALLOWED_HOSTS = env.list(
     "DJANGO_ALLOWED_HOSTS",
 )
 
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    "https",
+)
 
 if SECRET_KEY.startswith("unsafe-"):
     raise RuntimeError(

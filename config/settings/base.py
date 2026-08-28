@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 env = environ.Env(
     DJANGO_DEBUG=(bool, False),
 )
-
+from celery.schedules import crontab
 # Read .env if it exists.
 # Production environments can provide variables directly.
 env_file = BASE_DIR / ".env"
@@ -154,6 +154,7 @@ USE_TZ = True
 
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -356,4 +357,39 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
 
     "SORT_OPERATIONS": False,
+}
+
+# Celery Settings
+
+
+CELERY_BROKER_URL = env(
+    "REDIS_URL",
+)
+
+CELERY_RESULT_BACKEND = env(
+    "REDIS_URL",
+)
+
+CELERY_TASK_TRACK_STARTED = True
+
+CELERY_TASK_TIME_LIMIT = 300
+
+CELERY_TASK_SOFT_TIME_LIMIT = 240
+
+CELERY_ACCEPT_CONTENT = [
+    "json",
+]
+
+CELERY_TASK_SERIALIZER = "json"
+
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TIMEZONE = TIME_ZONE
+
+CELERY_ENABLE_UTC = True
+CELERY_BEAT_SCHEDULE = {
+    "process-overdue-tickets-every-5-minutes": {
+        "task": "apps.tickets.tasks.process_overdue_tickets",
+        "schedule": crontab(minute="*/5"),
+    },
 }
