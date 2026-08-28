@@ -47,7 +47,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
         read_only_fields = fields
 
-    def get_author_name(self, obj):
+    def get_author_name(self, obj) -> str:
         return (
             f"{obj.author.first_name} "
             f"{obj.author.last_name}"

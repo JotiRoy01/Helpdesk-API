@@ -5,10 +5,13 @@ from rest_framework import status
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema
+from .serializers import TicketAssignmentResponseSerializer, TicketUpdateSerializer
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics
 from .filters import TicketFilter
+from .models import Ticket
 from .permissions import (
     CanAssignTicket,
     CanTransitionTicket,
@@ -35,7 +38,98 @@ from .services import create_ticket, assign_ticket
 from .workflow import TicketWorkflow
 from apps.common.responses import success_response
 
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiResponse,
+    OpenApiTypes,
+    extend_schema,
+)
 
+from rest_framework import generics
+
+from .permissions import IsAuthenticatedTicketUser
+from .selectors import get_ticket_by_id
+from .serializers import TicketDetailSerializer
+
+
+@extend_schema(
+    tags=["Tickets"],
+    summary="List or create tickets",
+    description=(
+        "Returns tickets visible to the authenticated "
+        "user according to role and ownership rules. "
+        "Supports filtering, search, ordering, and pagination."
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="status",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description="Filter by ticket status.",
+        ),
+        OpenApiParameter(
+            name="priority",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description="Filter by ticket priority.",
+        ),
+        OpenApiParameter(
+            name="category",
+            type=OpenApiTypes.UUID,
+            location=OpenApiParameter.QUERY,
+            description="Filter by category UUID.",
+        ),
+        OpenApiParameter(
+            name="assigned_agent",
+            type=OpenApiTypes.UUID,
+            location=OpenApiParameter.QUERY,
+            description="Filter by assigned agent UUID.",
+        ),
+        OpenApiParameter(
+            name="creator",
+            type=OpenApiTypes.UUID,
+            location=OpenApiParameter.QUERY,
+            description="Filter by creator UUID.",
+        ),
+        OpenApiParameter(
+            name="is_overdue",
+            type=OpenApiTypes.BOOL,
+            location=OpenApiParameter.QUERY,
+            description="Filter overdue tickets.",
+        ),
+        OpenApiParameter(
+            name="search",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description=(
+                "Search title, description, or category name."
+            ),
+        ),
+        OpenApiParameter(
+            name="ordering",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description=(
+                "Ordering: created_at, updated_at, "
+                "priority, status, due_at. "
+                "Prefix with '-' for descending order."
+            ),
+        ),
+        OpenApiParameter(
+            name="page",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+        ),
+        OpenApiParameter(
+            name="page_size",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+        ),
+    ],
+)
+# class TicketListCreateView(
+#     generics.ListCreateAPIView
+# ):
 class TicketListCreateView(
     generics.ListCreateAPIView
 ):
@@ -70,6 +164,9 @@ class TicketListCreateView(
     )
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Ticket.objects.none()
+
         return get_visible_tickets_for_user(
             user=self.request.user,
         )
@@ -100,6 +197,10 @@ class TicketListCreateView(
 
         serializer.instance = ticket
 
+    @extend_schema(
+        request=TicketCreateSerializer,
+        responses={201: TicketDetailSerializer},
+    )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -112,39 +213,91 @@ class TicketListCreateView(
         )
 
 
-from rest_framework import generics
-
-from .permissions import IsAuthenticatedTicketUser
-from .selectors import get_ticket_by_id
-from .serializers import TicketDetailSerializer
-
-
+@extend_schema(
+    tags=["Tickets"],
+    summary="Retrieve a ticket",
+    description=(
+        "Returns a ticket visible to the authenticated "
+        "user according to role and ownership."
+    ),
+    responses={
+        200: TicketDetailSerializer,
+        404: OpenApiResponse(
+            description="Ticket not found."
+        ),
+    },
+)
+# class TicketDetailView(
+#     generics.RetrieveUpdateAPIView
+# ):
 class TicketDetailView(
     generics.RetrieveUpdateAPIView
 ):
-    serializer_class = TicketDetailSerializer
     permission_classes = [
         IsAuthenticatedTicketUser,
         TicketAccessPermission,
     ]
 
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Ticket.objects.none()
+
+        return get_visible_tickets_for_user(
+            user=self.request.user,
+        )
+
     def get_object(self):
+        """Return a visible ticket with a ticket-specific 404 error."""
         return get_visible_ticket_by_id(
             ticket_id=self.kwargs["pk"],
             user=self.request.user,
         )
 
-    def get_queryset(self):
-        return get_visible_tickets_for_user(
-            user=self.request.user,
-        )
+    def get_serializer_class(self):
+        if self.request.method in {
+            "PUT",
+            "PATCH",
+        }:
+            return TicketUpdateSerializer
+
+        return TicketDetailSerializer
 
 
+
+@extend_schema(
+    tags=["Ticket Workflow"],
+    summary="Transition ticket status",
+    description=(
+        "Transitions a ticket through the allowed "
+        "support workflow. Customers cannot perform "
+        "workflow transitions. Support agents may "
+        "transition tickets assigned to them. "
+        "Only administrators can close tickets."
+    ),
+    request=TicketTransitionSerializer,
+    responses={
+        200: TicketDetailSerializer,
+        400: OpenApiResponse(
+            description="Invalid transition."
+        ),
+        403: OpenApiResponse(
+            description="Workflow permission denied."
+        ),
+        404: OpenApiResponse(
+            description="Ticket not found."
+        ),
+    },
+)
+# class TicketTransitionView(APIView):
 class TicketTransitionView(APIView):
     permission_classes = [
         CanTransitionTicket,
     ]
 
+    @extend_schema(
+        request=TicketTransitionSerializer,
+        responses={200: TicketDetailSerializer},
+    )
     def post(self, request, pk):
         serializer = TicketTransitionSerializer(
             data=request.data,
@@ -181,11 +334,42 @@ class TicketTransitionView(APIView):
 # assign api view
 # --------------------
 
+
+
+@extend_schema(
+    tags=["Ticket Assignment"],
+    summary="Assign ticket to support agent",
+    description=(
+        "Assigns or reassigns a ticket to an active "
+        "Support Agent. Only administrators can perform "
+        "this operation."
+    ),
+    request=TicketAssignmentSerializer,
+    responses={
+        200: TicketAssignmentResponseSerializer,
+        400: OpenApiResponse(
+            description="Invalid assignment."
+        ),
+        403: OpenApiResponse(
+            description="Administrator access required."
+        ),
+        404: OpenApiResponse(
+            description="Ticket not found."
+        ),
+    },
+)
+# class TicketAssignmentView(APIView):
+
+
 class TicketAssignmentView(APIView):
     permission_classes = [
         CanAssignTicket,
     ]
 
+    @extend_schema(
+        request=TicketAssignmentSerializer,
+        responses={200: TicketDetailSerializer},
+    )
     def post(self, request, pk):
         serializer = TicketAssignmentSerializer(
             data=request.data,

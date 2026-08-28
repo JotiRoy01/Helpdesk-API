@@ -11,6 +11,9 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
+from .serializers import LoginResponseSerializer
 
 from .serializers import (
     LoginSerializer,
@@ -21,6 +24,13 @@ from .services import (
     generate_tokens,
     update_last_login,
 )
+
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiResponse,
+    extend_schema,
+)
+
 
 
 class LoginRateThrottle(AnonRateThrottle):
@@ -55,12 +65,38 @@ class LoginRateThrottle(AnonRateThrottle):
         return super().allow_request(request, view)
 
 # Registration
+
+@extend_schema(
+    tags=["Authentication"],
+    summary="Login",
+    description=(
+        "Authenticates a user and returns "
+        "short-lived access and refresh tokens."
+    ),
+    request=LoginSerializer,
+    responses={
+        200: OpenApiResponse(
+            description="Login successful."
+        ),
+        400: OpenApiResponse(
+            description="Invalid credentials."
+        ),
+        429: OpenApiResponse(
+            description="Rate limit exceeded."
+        ),
+    },
+)
+#class LoginView(APIView):
 class RegisterView(APIView):
 
     permission_classes = [AllowAny]
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "register"
 
+    @extend_schema(
+        request=RegisterSerializer,
+        responses={201: UserSerializer},
+    )
     def post(self, request):
         serializer = RegisterSerializer(
             data=request.data,
@@ -81,12 +117,39 @@ class RegisterView(APIView):
         )
 
 # Login View
+
+@extend_schema(
+    tags=["Authentication"],
+    summary="Login",
+    description=(
+        "Authenticates a user and returns "
+        "short-lived access and refresh tokens."
+    ),
+    request=LoginSerializer,
+    responses={
+        200: OpenApiResponse(
+            description="Login successful."
+        ),
+        400: OpenApiResponse(
+            description="Invalid credentials."
+        ),
+        429: OpenApiResponse(
+            description="Rate limit exceeded."
+        ),
+    },
+)
+# class LoginView(APIView):
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
     throttle_classes = [LoginRateThrottle]
     throttle_scope = "login"
 
+    @extend_schema(
+        request=LoginSerializer,
+        responses={200: UserSerializer},
+    )
     def post(self, request):
         serializer = LoginSerializer(
             data=request.data,
@@ -114,9 +177,21 @@ class LoginView(APIView):
         )
 
 # Current-user endpoint
+
+@extend_schema(
+    tags=["Authentication"],
+    summary="Get current user",
+    description=(
+        "Returns the authenticated user's "
+        "safe public profile."
+    ),
+    responses=UserSerializer,
+)
+# class MeView(APIView):
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(responses={200: UserSerializer})
     def get(self, request):
         return Response(
             {
@@ -128,9 +203,48 @@ class MeView(APIView):
 
 # Logout endpoint
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="Logout",
+    description=(
+        "Blacklists the supplied refresh token."
+    ),
+    responses={
+        200: OpenApiResponse(
+            description="Logout successful."
+        ),
+        400: OpenApiResponse(
+            description="Invalid or missing refresh token."
+        ),
+    },
+)
+# class LogoutView(APIView):
+
+@extend_schema(
+    tags=["Authentication"],
+    summary="Login",
+    request=LoginSerializer,
+    responses={
+        200: LoginResponseSerializer,
+        400: OpenApiResponse(
+            description="Invalid credentials."
+        ),
+        429: OpenApiResponse(
+            description="Rate limit exceeded."
+        ),
+    },
+)
+# class LoginView(APIView):
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        request=inline_serializer(
+            name="LogoutRequest",
+            fields={"refresh": serializers.CharField()},
+        ),
+        responses={200: None},
+    )
     def post(self, request):
         refresh_token = request.data.get(
             "refresh",
@@ -168,6 +282,18 @@ class LogoutView(APIView):
         )
 
 
+from drf_spectacular.utils import extend_schema
+
+
+@extend_schema(
+    tags=["Authentication"],
+    summary="Refresh access token",
+    description=(
+        "Issues a new access token using "
+        "a valid refresh token."
+    ),
+)
+#class RefreshTokenView(TokenRefreshView):
 class RefreshTokenView(TokenRefreshView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "token_refresh"

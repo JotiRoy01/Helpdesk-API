@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "corsheaders",
+    "drf_spectacular",
 
     "apps.users.apps.UsersConfig",
     "apps.categories.apps.CategoriesConfig",
@@ -224,6 +225,10 @@ REST_FRAMEWORK = {
         "register": "20/min",
         "token_refresh": "20/min",
     },
+
+    "DEFAULT_SCHEMA_CLASS": (
+        "drf_spectacular.openapi.AutoSchema"
+    ),
 }
 
 
@@ -276,3 +281,79 @@ CSRF_TRUSTED_ORIGINS = env.list(
 DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+
+
+# Configure spectacular
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "HelpDesk API",
+    "DESCRIPTION": (
+        "REST API for support tickets, "
+        "team workflow, comments, "
+        "dashboard statistics, and audit logging."
+    ),
+    "VERSION": "1.0.0",
+
+    "SERVE_INCLUDE_SCHEMA": False,
+
+    "SCHEMA_PATH_PREFIX": r"/api/v[0-9]",
+
+    "TAGS": [
+        {
+            "name": "Authentication",
+            "description": "Registration and authentication operations.",
+        },
+        {
+            "name": "Tickets",
+            "description": "Ticket creation, retrieval, filtering, and management.",
+        },
+        {
+            "name": "Ticket Workflow",
+            "description": "Ticket status transition operations.",
+        },
+        {
+            "name": "Ticket Assignment",
+            "description": "Administrative ticket assignment operations.",
+        },
+        {
+            "name": "Comments",
+            "description": "Ticket comment operations.",
+        },
+        {
+            "name": "Categories",
+            "description": "Support category operations.",
+        },
+        {
+            "name": "Dashboard",
+            "description": "Operational ticket statistics and workloads.",
+        },
+        {
+            "name": "Audit",
+            "description": "Administrative audit history.",
+        },
+        {
+            "name": "System",
+            "description": "Health and system endpoints.",
+        },
+    ],
+
+    "SECURITY": [
+        {
+            "bearerAuth": [],
+        }
+    ],
+
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            },
+        },
+    },
+
+    "COMPONENT_SPLIT_REQUEST": True,
+
+    "SORT_OPERATIONS": False,
+}

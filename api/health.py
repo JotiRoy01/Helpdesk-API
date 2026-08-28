@@ -1,12 +1,34 @@
 from django.db import connection
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
+from drf_spectacular.utils import extend_schema
 
 
+
+@extend_schema(
+    tags=["System"],
+    summary="Application health check",
+    description=(
+        "Checks whether the application and database "
+        "are available."
+    ),
+)
+# class HealthCheckView(APIView):
 class HealthCheckView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(
+        responses=inline_serializer(
+            name="HealthCheckResponse",
+            fields={
+                "status": serializers.CharField(),
+                "services": serializers.DictField(),
+            },
+        )
+    )
     def get(self, request):
         services = {
             "database": "ok",

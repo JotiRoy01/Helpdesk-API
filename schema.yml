@@ -1,0 +1,1490 @@
+openapi: 3.0.3
+info:
+  title: HelpDesk API
+  version: 1.0.0
+  description: REST API for support tickets, team workflow, comments, dashboard statistics,
+    and audit logging.
+paths:
+  /api/v1/health/:
+    get:
+      operationId: health_retrieve
+      description: Checks whether the application and database are available.
+      summary: Application health check
+      tags:
+      - System
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+          description: ''
+  /api/v1/categories/:
+    get:
+      operationId: categories_list
+      summary: List and create categories
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Categories
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryList'
+          description: ''
+    post:
+      operationId: categories_create
+      summary: List and create categories
+      tags:
+      - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/v1/categories/{id}/:
+    get:
+      operationId: categories_retrieve
+      summary: Retrieve or update a category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Categories
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    put:
+      operationId: categories_update
+      summary: Retrieve or update a category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    patch:
+      operationId: categories_partial_update
+      summary: Retrieve or update a category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategoryRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    delete:
+      operationId: categories_destroy
+      summary: Retrieve or update a category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Categories
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/tickets/:
+    get:
+      operationId: tickets_list
+      description: Returns tickets visible to the authenticated user according to
+        role and ownership rules. Supports filtering, search, ordering, and pagination.
+      summary: List or create tickets
+      parameters:
+      - in: query
+        name: assigned_agent
+        schema:
+          type: string
+          format: uuid
+        description: Filter by assigned agent UUID.
+      - in: query
+        name: category
+        schema:
+          type: string
+          format: uuid
+        description: Filter by category UUID.
+      - in: query
+        name: creator
+        schema:
+          type: string
+          format: uuid
+        description: Filter by creator UUID.
+      - in: query
+        name: is_overdue
+        schema:
+          type: boolean
+        description: Filter overdue tickets.
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: 'Ordering: created_at, updated_at, priority, status, due_at.
+          Prefix with ''-'' for descending order.'
+      - in: query
+        name: page
+        schema:
+          type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+      - in: query
+        name: priority
+        schema:
+          type: string
+        description: Filter by ticket priority.
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search title, description, or category name.
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Filter by ticket status.
+      tags:
+      - Tickets
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTicketListList'
+          description: ''
+    post:
+      operationId: tickets_create
+      description: Returns tickets visible to the authenticated user according to
+        role and ownership rules. Supports filtering, search, ordering, and pagination.
+      summary: List or create tickets
+      parameters:
+      - in: query
+        name: assigned_agent
+        schema:
+          type: string
+          format: uuid
+        description: Filter by assigned agent UUID.
+      - in: query
+        name: category
+        schema:
+          type: string
+          format: uuid
+        description: Filter by category UUID.
+      - in: query
+        name: creator
+        schema:
+          type: string
+          format: uuid
+        description: Filter by creator UUID.
+      - in: query
+        name: is_overdue
+        schema:
+          type: boolean
+        description: Filter overdue tickets.
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: 'Ordering: created_at, updated_at, priority, status, due_at.
+          Prefix with ''-'' for descending order.'
+      - in: query
+        name: page
+        schema:
+          type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+      - in: query
+        name: priority
+        schema:
+          type: string
+        description: Filter by ticket priority.
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search title, description, or category name.
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Filter by ticket status.
+      tags:
+      - Tickets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketCreate'
+          description: ''
+  /api/v1/tickets/{id}/:
+    get:
+      operationId: tickets_retrieve
+      description: Returns a ticket visible to the authenticated user according to
+        role and ownership.
+      summary: Retrieve a ticket
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Tickets
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDetail'
+          description: ''
+        '404':
+          description: Ticket not found.
+    put:
+      operationId: tickets_update
+      description: Returns a ticket visible to the authenticated user according to
+        role and ownership.
+      summary: Retrieve a ticket
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Tickets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDetail'
+          description: ''
+        '404':
+          description: Ticket not found.
+    patch:
+      operationId: tickets_partial_update
+      description: Returns a ticket visible to the authenticated user according to
+        role and ownership.
+      summary: Retrieve a ticket
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Tickets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTicketUpdateRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDetail'
+          description: ''
+        '404':
+          description: Ticket not found.
+  /api/v1/tickets/{id}/transition/:
+    post:
+      operationId: tickets_transition_create
+      description: Transitions a ticket through the allowed support workflow. Customers
+        cannot perform workflow transitions. Support agents may transition tickets
+        assigned to them. Only administrators can close tickets.
+      summary: Transition ticket status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Ticket Workflow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketTransitionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDetail'
+          description: ''
+  /api/v1/tickets/{id}/assign/:
+    post:
+      operationId: tickets_assign_create
+      description: Assigns or reassigns a ticket to an active Support Agent. Only
+        administrators can perform this operation.
+      summary: Assign ticket to support agent
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Ticket Assignment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketAssignmentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDetail'
+          description: ''
+  /api/v1/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Authenticates a user and returns short-lived access and refresh
+        tokens.
+      summary: Login
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Authenticates a user and returns short-lived access and refresh
+        tokens.
+      summary: Login
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: Issues a new access token using a valid refresh token.
+      summary: Refresh access token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/v1/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: Blacklists the supplied refresh token.
+      summary: Logout
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      description: Returns the authenticated user's safe public profile.
+      summary: Get current user
+      tags:
+      - Authentication
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/tickets/{ticket_id}/comments/:
+    get:
+      operationId: tickets_comments_list
+      description: Returns comments for a ticket visible to the authenticated user.
+      summary: List ticket comments
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: path
+        name: ticket_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Comments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCommentList'
+          description: ''
+    post:
+      operationId: tickets_comments_create
+      description: Adds a comment to a ticket. The author is always the authenticated
+        user.
+      summary: Add ticket comment
+      parameters:
+      - in: path
+        name: ticket_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+        '400':
+          description: Validation error.
+        '404':
+          description: Ticket not found.
+  /api/v1/dashboard/summary/:
+    get:
+      operationId: dashboard_summary_retrieve
+      description: Administrators receive global ticket statistics. Support agents
+        receive statistics for tickets assigned to them. Customers are denied access.
+      summary: Get dashboard summary
+      tags:
+      - Dashboard
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+          description: ''
+  /api/v1/dashboard/workload/:
+    get:
+      operationId: dashboard_workload_list
+      description: Returns team-wide workload statistics. Only administrators can
+        access this endpoint.
+      summary: Get support-agent workload
+      tags:
+      - Dashboard
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentWorkload'
+          description: ''
+  /api/v1/audit-logs/:
+    get:
+      operationId: audit_logs_list
+      description: Returns immutable administrative audit records. Only administrators
+        can access this endpoint.
+      summary: List audit logs
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Audit
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+components:
+  schemas:
+    ActionEnum:
+      enum:
+      - TICKET_CREATED
+      - TICKET_ASSIGNED
+      - TICKET_REASSIGNED
+      - TICKET_STATUS_CHANGED
+      - TICKET_PRIORITY_CHANGED
+      - COMMENT_ADDED
+      - CATEGORY_CREATED
+      - CATEGORY_UPDATED
+      type: string
+      description: |-
+        * `TICKET_CREATED` - Ticket Created
+        * `TICKET_ASSIGNED` - Ticket Assigned
+        * `TICKET_REASSIGNED` - Ticket Reassigned
+        * `TICKET_STATUS_CHANGED` - Ticket Status Changed
+        * `TICKET_PRIORITY_CHANGED` - Ticket Priority Changed
+        * `COMMENT_ADDED` - Comment Added
+        * `CATEGORY_CREATED` - Category Created
+        * `CATEGORY_UPDATED` - Category Updated
+    AgentWorkload:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+        assigned_ticket_count:
+          type: integer
+        open_count:
+          type: integer
+        in_progress_count:
+          type: integer
+        waiting_for_user_count:
+          type: integer
+        overdue_count:
+          type: integer
+      required:
+      - assigned_ticket_count
+      - email
+      - first_name
+      - id
+      - in_progress_count
+      - last_name
+      - open_count
+      - overdue_count
+      - waiting_for_user_count
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        actor:
+          type: string
+          format: uuid
+          readOnly: true
+        actor_email:
+          type: string
+          format: email
+          readOnly: true
+        action:
+          allOf:
+          - $ref: '#/components/schemas/ActionEnum'
+          readOnly: true
+        entity_type:
+          type: string
+          readOnly: true
+        entity_id:
+          type: string
+          format: uuid
+          readOnly: true
+        old_value:
+          readOnly: true
+          nullable: true
+        new_value:
+          readOnly: true
+          nullable: true
+        metadata:
+          readOnly: true
+        ip_address:
+          type: string
+          readOnly: true
+          nullable: true
+        user_agent:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action
+      - actor
+      - actor_email
+      - created_at
+      - entity_id
+      - entity_type
+      - id
+      - ip_address
+      - metadata
+      - new_value
+      - old_value
+      - user_agent
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - updated_at
+    CategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        is_active:
+          type: boolean
+      required:
+      - name
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        author:
+          type: string
+          format: uuid
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - author_name
+      - created_at
+      - id
+      - message
+      - updated_at
+    CommentCreateRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required:
+      - message
+    DashboardSummary:
+      type: object
+      properties:
+        total:
+          type: integer
+        open:
+          type: integer
+        in_progress:
+          type: integer
+        waiting_for_user:
+          type: integer
+        resolved:
+          type: integer
+        closed:
+          type: integer
+        overdue:
+          type: integer
+      required:
+      - closed
+      - in_progress
+      - open
+      - overdue
+      - resolved
+      - total
+      - waiting_for_user
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        services:
+          type: object
+          additionalProperties: {}
+      required:
+      - services
+      - status
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    LogoutRequestRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    PaginatedAuditLogList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+    PaginatedCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    PaginatedCommentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+    PaginatedTicketListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TicketList'
+    PatchedCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        is_active:
+          type: boolean
+    PatchedTicketUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+        description:
+          type: string
+          minLength: 10
+        category:
+          type: string
+          format: uuid
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+    PriorityEnum:
+      enum:
+      - LOW
+      - MEDIUM
+      - HIGH
+      - CRITICAL
+      type: string
+      description: |-
+        * `LOW` - Low
+        * `MEDIUM` - Medium
+        * `HIGH` - High
+        * `CRITICAL` - Critical
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        password_confirmation:
+          type: string
+          writeOnly: true
+          minLength: 8
+      required:
+      - email
+      - first_name
+      - last_name
+      - password
+      - password_confirmation
+    RoleEnum:
+      enum:
+      - CUSTOMER
+      - SUPPORT_AGENT
+      - ADMIN
+      type: string
+      description: |-
+        * `CUSTOMER` - Customer
+        * `SUPPORT_AGENT` - Support Agent
+        * `ADMIN` - Admin
+    StatusEnum:
+      enum:
+      - OPEN
+      - IN_PROGRESS
+      - WAITING_FOR_USER
+      - RESOLVED
+      - CLOSED
+      type: string
+      description: |-
+        * `OPEN` - Open
+        * `IN_PROGRESS` - In Progress
+        * `WAITING_FOR_USER` - Waiting for User
+        * `RESOLVED` - Resolved
+        * `CLOSED` - Closed
+    TicketAssignmentRequest:
+      type: object
+      properties:
+        assigned_agent:
+          type: string
+          format: uuid
+      required:
+      - assigned_agent
+    TicketCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          minLength: 5
+        description:
+          type: string
+          minLength: 10
+        category:
+          type: string
+          format: uuid
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+      required:
+      - category
+      - description
+      - title
+    TicketCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+        description:
+          type: string
+          minLength: 10
+        category:
+          type: string
+          format: uuid
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+      required:
+      - category
+      - description
+      - title
+    TicketDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        category:
+          type: string
+          format: uuid
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        creator:
+          type: string
+          format: uuid
+          readOnly: true
+        creator_name:
+          type: string
+          readOnly: true
+        assigned_agent:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        assigned_agent_name:
+          type: string
+          nullable: true
+          readOnly: true
+        due_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_overdue:
+          type: boolean
+          readOnly: true
+        resolved_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        closed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - assigned_agent
+      - assigned_agent_name
+      - category
+      - category_name
+      - closed_at
+      - created_at
+      - creator
+      - creator_name
+      - description
+      - due_at
+      - id
+      - is_overdue
+      - priority
+      - resolved_at
+      - status
+      - title
+      - updated_at
+    TicketList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        category:
+          type: string
+          format: uuid
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        assigned_agent:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        assigned_agent_name:
+          type: string
+          nullable: true
+          readOnly: true
+        due_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - assigned_agent
+      - assigned_agent_name
+      - category
+      - category_name
+      - created_at
+      - due_at
+      - id
+      - priority
+      - status
+      - title
+      - updated_at
+    TicketTransitionRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+      required:
+      - status
+    TicketUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+        description:
+          type: string
+          minLength: 10
+        category:
+          type: string
+          format: uuid
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+      required:
+      - category
+      - description
+      - title
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - first_name
+      - id
+      - is_active
+      - last_name
+      - role
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Authentication
+  description: Registration and authentication operations.
+- name: Tickets
+  description: Ticket creation, retrieval, filtering, and management.
+- name: Ticket Workflow
+  description: Ticket status transition operations.
+- name: Ticket Assignment
+  description: Administrative ticket assignment operations.
+- name: Comments
+  description: Ticket comment operations.
+- name: Categories
+  description: Support category operations.
+- name: Dashboard
+  description: Operational ticket statistics and workloads.
+- name: Audit
+  description: Administrative audit history.
+- name: System
+  description: Health and system endpoints.

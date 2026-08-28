@@ -27,3 +27,9 @@ coverage:
 
 run:
 	python manage.py runserver
+
+schema:
+	python manage.py spectacular --file schema.yml
+
+schema-check:
+	python manage.py spectacular --validate

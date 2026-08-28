@@ -118,3 +118,39 @@ class LoginSerializer(serializers.Serializer):
         attrs["user"] = user
 
         return attrs
+
+
+class RegisterResponseSerializer(
+    serializers.Serializer
+):
+    success = serializers.BooleanField()
+    message = serializers.CharField()
+    data = UserSerializer()
+    request_id = serializers.CharField(
+        allow_null=True,
+    )
+
+
+class TokenPairSerializer(
+    serializers.Serializer
+):
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+
+
+class LoginDataSerializer(
+    serializers.Serializer
+):
+    user = UserSerializer()
+    tokens = TokenPairSerializer()
+
+
+class LoginResponseSerializer(
+    serializers.Serializer
+):
+    success = serializers.BooleanField()
+    message = serializers.CharField()
+    data = LoginDataSerializer()
+    request_id = serializers.CharField(
+        allow_null=True,
+    )

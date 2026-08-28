@@ -85,13 +85,13 @@ class TicketDetailSerializer(serializers.ModelSerializer):
 
         read_only_fields = fields
 
-    def get_creator_name(self, obj):
+    def get_creator_name(self, obj) -> str:
         return (
             f"{obj.creator.first_name} "
             f"{obj.creator.last_name}"
         ).strip()
 
-    def get_assigned_agent_name(self, obj):
+    def get_assigned_agent_name(self, obj) -> str | None:
         if not obj.assigned_agent:
             return None
 
@@ -100,7 +100,7 @@ class TicketDetailSerializer(serializers.ModelSerializer):
             f"{obj.assigned_agent.last_name}"
         ).strip()
 
-    def get_is_overdue(self, obj):
+    def get_is_overdue(self, obj) -> bool:
         # from django.utils import timezone
 
         # if not obj.due_at:
@@ -165,7 +165,7 @@ class TicketAssignmentResponseSerializer(
             "updated_at",
         )
 
-    def get_assigned_agent_name(self, obj):
+    def get_assigned_agent_name(self, obj) -> str | None:
         if not obj.assigned_agent:
             return None
 
@@ -205,7 +205,7 @@ class TicketListSerializer(serializers.ModelSerializer):
 
         read_only_fields = fields
 
-    def get_assigned_agent_name(self, obj):
+    def get_assigned_agent_name(self, obj) -> str | None:
         if not obj.assigned_agent:
             return None
 
@@ -215,3 +215,36 @@ class TicketListSerializer(serializers.ModelSerializer):
         ).strip()
 
 
+
+class TicketUpdateSerializer(
+    serializers.ModelSerializer
+):
+    class Meta:
+        model = Ticket
+
+        fields = (
+            "title",
+            "description",
+            "category",
+            "priority",
+        )
+
+    def validate_title(self, value):
+        value = value.strip()
+
+        if len(value) < 5:
+            raise serializers.ValidationError(
+                "Title must contain at least 5 characters."
+            )
+
+        return value
+
+    def validate_description(self, value):
+        value = value.strip()
+
+        if len(value) < 10:
+            raise serializers.ValidationError(
+                "Description must contain at least 10 characters."
+            )
+
+        return value
