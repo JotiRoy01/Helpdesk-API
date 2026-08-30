@@ -1,15 +1,11 @@
 from django.urls import path
 
 from .views import (
-    TicketDetailView,
-    TicketListCreateView,
-    TicketTransitionView,
     TicketAssignmentView,
     TicketDetailView,
     TicketListCreateView,
-    TicketTransitionView
+    TicketTransitionView,
 )
-
 
 urlpatterns = [
     path(

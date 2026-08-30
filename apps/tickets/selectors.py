@@ -2,20 +2,16 @@ from django.db.models import QuerySet
 
 from apps.users.constants import UserRole
 
-from .models import Ticket
 from .exceptions import TicketNotFoundError
+from .models import Ticket
 
 
 def ticket_queryset() -> QuerySet[Ticket]:
-    return (
-        Ticket.objects
-        .select_related(
-            "category",
-            "creator",
-            "assigned_agent",
-        )
-        .all()
-    )
+    return Ticket.objects.select_related(
+        "category",
+        "creator",
+        "assigned_agent",
+    ).all()
 
 
 def get_visible_tickets_for_user(
@@ -52,8 +48,7 @@ def get_ticket_by_id(ticket_id):
 def get_ticket_for_update(ticket_id):
     try:
         return (
-            Ticket.objects
-            .select_for_update()
+            Ticket.objects.select_for_update()
             .select_related(
                 "category",
                 "creator",
@@ -73,14 +68,10 @@ def get_ticket_for_update_for_user(
     ticket_id,
     user,
 ):
-    queryset = (
-        Ticket.objects
-        .select_for_update()
-        .select_related(
-            "category",
-            "creator",
-            "assigned_agent",
-        )
+    queryset = Ticket.objects.select_for_update().select_related(
+        "category",
+        "creator",
+        "assigned_agent",
     )
 
     if user.role == UserRole.ADMIN:
@@ -100,11 +91,10 @@ def get_ticket_for_update_for_user(
 
     return queryset.none().get(id=ticket_id)
 
+
 # ---------------------------
 # ---------------------------
 from django.db.models import QuerySet
-
-from apps.users.constants import UserRole
 
 from .models import Ticket
 
@@ -114,8 +104,7 @@ def get_ticket_for_assignment(
     ticket_id,
 ):
     return (
-        Ticket.objects
-        .select_for_update()
+        Ticket.objects.select_for_update()
         .select_related(
             "category",
             "creator",
@@ -125,9 +114,6 @@ def get_ticket_for_assignment(
             id=ticket_id,
         )
     )
-
-
-from .exceptions import TicketNotFoundError
 
 
 def get_visible_ticket_by_id(

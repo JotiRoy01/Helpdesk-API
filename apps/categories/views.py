@@ -1,12 +1,10 @@
-from django.shortcuts import render
-
 # Create your views here.
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics
 
 from .models import Category
 from .permissions import IsAdminOrReadOnly
 from .serializers import CategorySerializer
-from drf_spectacular.utils import extend_schema
 
 
 @extend_schema(
@@ -16,9 +14,7 @@ from drf_spectacular.utils import extend_schema
 # class CategoryListCreateView(
 #     generics.ListCreateAPIView
 # ):
-class CategoryListCreateView(
-    generics.ListCreateAPIView
-):
+class CategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
 
@@ -32,6 +28,7 @@ class CategoryListCreateView(
 
         return queryset
 
+
 @extend_schema(
     tags=["Categories"],
     summary="Retrieve or update a category",
@@ -39,9 +36,7 @@ class CategoryListCreateView(
 # class CategoryDetailView(
 #     generics.RetrieveUpdateAPIView
 # ):
-class CategoryDetailView(
-    generics.RetrieveUpdateDestroyAPIView
-):
+class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]

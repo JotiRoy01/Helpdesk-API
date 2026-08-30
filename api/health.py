@@ -1,19 +1,14 @@
 from django.db import connection
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
-from drf_spectacular.utils import extend_schema
-
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 @extend_schema(
     tags=["System"],
     summary="Application health check",
-    description=(
-        "Checks whether the application and database "
-        "are available."
-    ),
+    description=("Checks whether the application and database are available."),
 )
 # class HealthCheckView(APIView):
 class HealthCheckView(APIView):
@@ -40,10 +35,7 @@ class HealthCheckView(APIView):
         except Exception:
             services["database"] = "error"
 
-        healthy = all(
-            status == "ok"
-            for status in services.values()
-        )
+        healthy = all(status == "ok" for status in services.values())
 
         return Response(
             {

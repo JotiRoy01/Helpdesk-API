@@ -26,9 +26,7 @@ class CategorySerializer(serializers.ModelSerializer):
         value = value.strip()
 
         if not value:
-            raise serializers.ValidationError(
-                "Category name cannot be empty."
-            )
+            raise serializers.ValidationError("Category name cannot be empty.")
 
         if len(value) < 2:
             raise serializers.ValidationError(

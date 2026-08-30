@@ -1,10 +1,7 @@
-from drf_spectacular.extensions import OpenApiSerializerExtension
 from rest_framework import serializers
 
 
-class SuccessEnvelopeSerializer(
-    serializers.Serializer
-):
+class SuccessEnvelopeSerializer(serializers.Serializer):
     success = serializers.BooleanField(
         default=True,
     )

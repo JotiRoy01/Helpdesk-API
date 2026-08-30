@@ -1,6 +1,5 @@
 from .base import *
 
-
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = "/static/"
 
@@ -23,9 +22,9 @@ SECURE_REFERRER_POLICY = "same-origin"
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 
-ALLOWED_HOSTS = env.list(
-    "DJANGO_ALLOWED_HOSTS",
-)
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=[])
+if "healthcheck.railway.app" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("healthcheck.railway.app")
 
 ALLOWED_HOSTS = env.list(
     "DJANGO_ALLOWED_HOSTS",
@@ -37,6 +36,4 @@ SECURE_PROXY_SSL_HEADER = (
 )
 
 if SECRET_KEY.startswith("unsafe-"):
-    raise RuntimeError(
-        "A secure DJANGO_SECRET_KEY is required in production."
-    )
+    raise RuntimeError("A secure DJANGO_SECRET_KEY is required in production.")

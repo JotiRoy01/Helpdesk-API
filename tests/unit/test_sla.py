@@ -22,10 +22,7 @@ pytestmark = pytest.mark.unit
     ],
 )
 def test_sla_policy(priority, hours):
-    assert (
-        SLA_POLICIES[priority].duration
-        == timedelta(hours=hours)
-    )
+    assert SLA_POLICIES[priority].duration == timedelta(hours=hours)
 
 
 def test_calculate_due_at():
@@ -36,9 +33,8 @@ def test_calculate_due_at():
         created_at=created_at,
     )
 
-    assert result == (
-        created_at + timedelta(hours=4)
-    )
+    assert result == (created_at + timedelta(hours=4))
+
 
 # -----------------------------------
 # Test SLA invalid priority

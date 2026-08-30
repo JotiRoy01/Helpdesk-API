@@ -3,8 +3,7 @@ from datetime import timedelta
 
 from django.utils import timezone
 
-from .constants import TicketPriority, TicketStatus
-from .models import Ticket
+from .constants import TicketPriority
 
 
 @dataclass(frozen=True)
@@ -27,6 +26,7 @@ SLA_POLICIES = {
     ),
 }
 
+
 # ------------------------------
 # calculate due time
 # ------------------------------
@@ -40,10 +40,6 @@ def calculate_due_at(
     try:
         policy = SLA_POLICIES[priority]
     except KeyError as exc:
-        raise ValueError(
-            f"Unsupported ticket priority: {priority}"
-        ) from exc
+        raise ValueError(f"Unsupported ticket priority: {priority}") from exc
 
     return created_at + policy.duration
-
-

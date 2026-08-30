@@ -1,16 +1,15 @@
-import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
-from datetime import timedelta
-
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env(
     DJANGO_DEBUG=(bool, False),
 )
-from celery.schedules import crontab
+
 # Read .env if it exists.
 # Production environments can provide variables directly.
 env_file = BASE_DIR / ".env"
@@ -42,12 +41,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "rest_framework",
     "django_filters",
     "corsheaders",
     "drf_spectacular",
-
     "apps.users.apps.UsersConfig",
     "apps.categories.apps.CategoriesConfig",
     "apps.tickets.apps.TicketsConfig",
@@ -60,11 +57,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    
     "corsheaders.middleware.CorsMiddleware",
-
     "apps.common.middleware.RequestIDMiddleware",
-
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -119,27 +113,17 @@ AUTH_USER_MODEL = "users.User"
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": (
-            "django.contrib.auth.password_validation."
-            "UserAttributeSimilarityValidator"
+            "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
         ),
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "MinimumLengthValidator"
-        ),
+        "NAME": ("django.contrib.auth.password_validation.MinimumLengthValidator"),
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "CommonPasswordValidator"
-        ),
+        "NAME": ("django.contrib.auth.password_validation.CommonPasswordValidator"),
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "NumericPasswordValidator"
-        ),
+        "NAME": ("django.contrib.auth.password_validation.NumericPasswordValidator"),
     },
 ]
 
@@ -162,63 +146,41 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
-
     "UPDATE_LAST_LOGIN": True,
-
     "ALGORITHM": "HS256",
     "SIGNING_KEY": env("JWT_SIGNING_KEY"),
-
     "AUTH_HEADER_TYPES": ("Bearer",),
-
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
-
     "TOKEN_TYPE_CLAIM": "token_type",
-
     "JTI_CLAIM": "jti",
-
     "CHECK_REVOKE_TOKEN": False,
 }
-
 
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-    ),
-
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_FILTER_BACKENDS": (
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.OrderingFilter",
         "rest_framework.filters.SearchFilter",
     ),
-    "DEFAULT_PAGINATION_CLASS": (
-        "apps.common.pagination.StandardResultsSetPagination"
-    ),
-    "EXCEPTION_HANDLER": (
-    "apps.common.exception_handler.custom_exception_handler"
-    ),
-    "DEFAULT_PARSER_CLASSES": (
-        "rest_framework.parsers.JSONParser",
-    ),
-
+    "DEFAULT_PAGINATION_CLASS": ("apps.common.pagination.StandardResultsSetPagination"),
+    "EXCEPTION_HANDLER": ("apps.common.exception_handler.custom_exception_handler"),
+    "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
-
     "DEFAULT_THROTTLE_CLASSES": (
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ),
-
     "DEFAULT_THROTTLE_RATES": {
         "anon": "60/min",
         "user": "300/min",
@@ -226,34 +188,25 @@ REST_FRAMEWORK = {
         "register": "20/min",
         "token_refresh": "20/min",
     },
-
-    "DEFAULT_SCHEMA_CLASS": (
-        "drf_spectacular.openapi.AutoSchema"
-    ),
+    "DEFAULT_SCHEMA_CLASS": ("drf_spectacular.openapi.AutoSchema"),
 }
 
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-
     "formatters": {
         "verbose": {
-            "format": (
-                "{asctime} {levelname} "
-                "{name} {message}"
-            ),
+            "format": ("{asctime} {levelname} {name} {message}"),
             "style": "{",
         },
     },
-
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
     },
-
     "loggers": {
         "apps": {
             "handlers": ["console"],
@@ -294,11 +247,8 @@ SPECTACULAR_SETTINGS = {
         "dashboard statistics, and audit logging."
     ),
     "VERSION": "1.0.0",
-
     "SERVE_INCLUDE_SCHEMA": False,
-
     "SCHEMA_PATH_PREFIX": r"/api/v[0-9]",
-
     "TAGS": [
         {
             "name": "Authentication",
@@ -337,13 +287,11 @@ SPECTACULAR_SETTINGS = {
             "description": "Health and system endpoints.",
         },
     ],
-
     "SECURITY": [
         {
             "bearerAuth": [],
         }
     ],
-
     "APPEND_COMPONENTS": {
         "securitySchemes": {
             "bearerAuth": {
@@ -353,9 +301,7 @@ SPECTACULAR_SETTINGS = {
             },
         },
     },
-
     "COMPONENT_SPLIT_REQUEST": True,
-
     "SORT_OPERATIONS": False,
 }
 

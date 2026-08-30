@@ -16,7 +16,7 @@ python manage.py check
 ```bash
 python manage.py runserver
 ```
-# create folder 
+# create folder
 ```bash
 mkdir -p config/settings
 ```
@@ -81,3 +81,62 @@ exit()
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(64))"
 ```
+
+
+# HelpDesk API
+
+Production-oriented REST API for a support/helpdesk platform.
+
+## Overview
+
+The HelpDesk API provides:
+
+- customer registration and authentication;
+- role-based authorization;
+- ticket management;
+- category management;
+- ticket assignment;
+- ticket workflow;
+- comments;
+- SLA/overdue handling;
+- dashboard statistics;
+- audit logging;
+- OpenAPI/Swagger documentation.
+
+## Technology Stack
+
+- Python
+- Django
+- Django REST Framework
+- MySQL
+- Redis
+- Celery
+- Docker
+- Nginx
+- Gunicorn
+- JWT
+- OpenAPI / Swagger
+- pytest
+
+## Architecture
+
+```text
+Client
+  |
+  v
+Nginx
+  |
+  v
+Gunicorn
+  |
+  v
+Django REST Framework
+  |
+  +-------------------+
+  |                   |
+  v                   v
+MySQL                Redis
+                      |
+                  +---+---+
+                  |       |
+               Celery   Beat

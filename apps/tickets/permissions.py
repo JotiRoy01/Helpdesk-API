@@ -7,11 +7,7 @@ class IsAuthenticatedTicketUser(BasePermission):
     """
 
     def has_permission(self, request, view):
-        return bool(
-            request.user
-            and request.user.is_authenticated
-        )
-
+        return bool(request.user and request.user.is_authenticated)
 
 
 from rest_framework.permissions import BasePermission
@@ -33,7 +29,8 @@ class IsSupportAgentOrAdmin(BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and request.user.role in {
+            and request.user.role
+            in {
                 UserRole.SUPPORT_AGENT,
                 UserRole.ADMIN,
             }
@@ -42,7 +39,6 @@ class IsSupportAgentOrAdmin(BasePermission):
 
 from rest_framework.permissions import BasePermission
 
-from apps.users.constants import UserRole
 
 # Ticket ownership permission
 class TicketAccessPermission(BasePermission):
@@ -83,6 +79,7 @@ class TicketAccessPermission(BasePermission):
 
         return False
 
+
 # Assignment needs to be restricted to Admin
 class CanAssignTicket(BasePermission):
     message = "Only administrators can assign tickets."
@@ -102,11 +99,9 @@ class CanTransitionTicket(BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and request.user.role in {
+            and request.user.role
+            in {
                 UserRole.SUPPORT_AGENT,
                 UserRole.ADMIN,
             }
         )
-
-
-    

@@ -4,10 +4,7 @@ from apps.users.constants import UserRole
 
 
 class CanAccessTicketComments(BasePermission):
-    message = (
-        "You do not have permission to access "
-        "comments for this ticket."
-    )
+    message = "You do not have permission to access comments for this ticket."
 
     def has_object_permission(
         self,

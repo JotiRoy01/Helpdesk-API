@@ -1,15 +1,17 @@
-from django.shortcuts import render
-from apps.users.constants import UserRole
 # Create your views here.
-from rest_framework import status
-from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiResponse,
+    OpenApiTypes,
+    extend_schema,
+)
+from rest_framework import filters, generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from drf_spectacular.utils import extend_schema
-from .serializers import TicketAssignmentResponseSerializer, TicketUpdateSerializer
 
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics
+from apps.common.responses import success_response
+
 from .filters import TicketFilter
 from .models import Ticket
 from .permissions import (
@@ -18,38 +20,22 @@ from .permissions import (
     IsAuthenticatedTicketUser,
     TicketAccessPermission,
 )
-from .selectors import ticket_queryset, get_ticket_for_assignment
+from .selectors import (
+    get_ticket_for_assignment,
+    get_visible_ticket_by_id,
+    get_visible_tickets_for_user,
+)
 from .serializers import (
+    TicketAssignmentResponseSerializer,
+    TicketAssignmentSerializer,
     TicketCreateSerializer,
     TicketDetailSerializer,
     TicketListSerializer,
     TicketTransitionSerializer,
-    TicketAssignmentSerializer,
+    TicketUpdateSerializer,
 )
-
-from .selectors import (
-    get_ticket_by_id,
-    get_ticket_for_update,
-    get_visible_ticket_by_id,
-    get_visible_tickets_for_user,
-)
-
-from .services import create_ticket, assign_ticket
+from .services import assign_ticket, create_ticket
 from .workflow import TicketWorkflow
-from apps.common.responses import success_response
-
-from drf_spectacular.utils import (
-    OpenApiParameter,
-    OpenApiResponse,
-    OpenApiTypes,
-    extend_schema,
-)
-
-from rest_framework import generics
-
-from .permissions import IsAuthenticatedTicketUser
-from .selectors import get_ticket_by_id
-from .serializers import TicketDetailSerializer
 
 
 @extend_schema(
@@ -101,9 +87,7 @@ from .serializers import TicketDetailSerializer
             name="search",
             type=OpenApiTypes.STR,
             location=OpenApiParameter.QUERY,
-            description=(
-                "Search title, description, or category name."
-            ),
+            description=("Search title, description, or category name."),
         ),
         OpenApiParameter(
             name="ordering",
@@ -130,9 +114,7 @@ from .serializers import TicketDetailSerializer
 # class TicketListCreateView(
 #     generics.ListCreateAPIView
 # ):
-class TicketListCreateView(
-    generics.ListCreateAPIView
-):
+class TicketListCreateView(generics.ListCreateAPIView):
     permission_classes = [
         IsAuthenticatedTicketUser,
     ]
@@ -159,9 +141,7 @@ class TicketListCreateView(
         "due_at",
     )
 
-    ordering = (
-        "-created_at",
-    )
+    ordering = ("-created_at",)
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
@@ -186,9 +166,7 @@ class TicketListCreateView(
             description=data["description"],
             category=data["category"],
             priority=data["priority"],
-            ip_address=self.request.META.get(
-                "REMOTE_ADDR"
-            ),
+            ip_address=self.request.META.get("REMOTE_ADDR"),
             user_agent=self.request.META.get(
                 "HTTP_USER_AGENT",
                 "",
@@ -222,17 +200,13 @@ class TicketListCreateView(
     ),
     responses={
         200: TicketDetailSerializer,
-        404: OpenApiResponse(
-            description="Ticket not found."
-        ),
+        404: OpenApiResponse(description="Ticket not found."),
     },
 )
 # class TicketDetailView(
 #     generics.RetrieveUpdateAPIView
 # ):
-class TicketDetailView(
-    generics.RetrieveUpdateAPIView
-):
+class TicketDetailView(generics.RetrieveUpdateAPIView):
     permission_classes = [
         IsAuthenticatedTicketUser,
         TicketAccessPermission,
@@ -263,7 +237,6 @@ class TicketDetailView(
         return TicketDetailSerializer
 
 
-
 @extend_schema(
     tags=["Ticket Workflow"],
     summary="Transition ticket status",
@@ -277,15 +250,9 @@ class TicketDetailView(
     request=TicketTransitionSerializer,
     responses={
         200: TicketDetailSerializer,
-        400: OpenApiResponse(
-            description="Invalid transition."
-        ),
-        403: OpenApiResponse(
-            description="Workflow permission denied."
-        ),
-        404: OpenApiResponse(
-            description="Ticket not found."
-        ),
+        400: OpenApiResponse(description="Invalid transition."),
+        403: OpenApiResponse(description="Workflow permission denied."),
+        404: OpenApiResponse(description="Ticket not found."),
     },
 )
 # class TicketTransitionView(APIView):
@@ -316,13 +283,8 @@ class TicketTransitionView(APIView):
             ticket=ticket,
             new_status=serializer.validated_data["status"],
             actor=request.user,
-            ip_address=request.META.get(
-                "REMOTE_ADDR"
-            ),
-            user_agent=request.META.get(
-                "HTTP_USER_AGENT",
-                ""
-            ),
+            ip_address=request.META.get("REMOTE_ADDR"),
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
         )
 
         return Response(
@@ -330,10 +292,10 @@ class TicketTransitionView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
 # --------------------
 # assign api view
 # --------------------
-
 
 
 @extend_schema(
@@ -347,15 +309,9 @@ class TicketTransitionView(APIView):
     request=TicketAssignmentSerializer,
     responses={
         200: TicketAssignmentResponseSerializer,
-        400: OpenApiResponse(
-            description="Invalid assignment."
-        ),
-        403: OpenApiResponse(
-            description="Administrator access required."
-        ),
-        404: OpenApiResponse(
-            description="Ticket not found."
-        ),
+        400: OpenApiResponse(description="Invalid assignment."),
+        403: OpenApiResponse(description="Administrator access required."),
+        404: OpenApiResponse(description="Ticket not found."),
     },
 )
 # class TicketAssignmentView(APIView):
@@ -385,17 +341,10 @@ class TicketAssignmentView(APIView):
 
         ticket = assign_ticket(
             ticket=ticket,
-            agent=serializer.validated_data[
-                "assigned_agent"
-            ],
+            agent=serializer.validated_data["assigned_agent"],
             actor=request.user,
-            ip_address = request.META.get(
-                'REMOTE_ADDR'
-            ),
-            user_agent=request.META.get(
-                "HTTP_USER_AGENT",
-                ""
-            )
+            ip_address=request.META.get("REMOTE_ADDR"),
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
         )
 
         return Response(

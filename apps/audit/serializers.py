@@ -3,9 +3,7 @@ from rest_framework import serializers
 from .models import AuditLog
 
 
-class AuditLogSerializer(
-    serializers.ModelSerializer
-):
+class AuditLogSerializer(serializers.ModelSerializer):
     actor_email = serializers.EmailField(
         source="actor.email",
         read_only=True,
@@ -30,5 +28,3 @@ class AuditLogSerializer(
         )
 
         read_only_fields = fields
-
-

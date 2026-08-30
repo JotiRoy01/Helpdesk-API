@@ -1,9 +1,10 @@
-from django.shortcuts import render
-
 # Create your views here.
+from drf_spectacular.utils import (
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 from rest_framework import generics
-from drf_spectacular.utils import extend_schema_view
-from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from .models import Comment
 from .permissions import CanAccessTicketComments
@@ -14,20 +15,13 @@ from .serializers import (
 )
 from .services import create_comment
 
-from drf_spectacular.utils import (
-    OpenApiResponse,
-    extend_schema,
-    extend_schema_view,
-)
-
 
 @extend_schema_view(
     get=extend_schema(
         tags=["Comments"],
         summary="List ticket comments",
         description=(
-            "Returns comments for a ticket visible "
-            "to the authenticated user."
+            "Returns comments for a ticket visible to the authenticated user."
         ),
         responses=CommentSerializer,
     ),
@@ -35,27 +29,20 @@ from drf_spectacular.utils import (
         tags=["Comments"],
         summary="Add ticket comment",
         description=(
-            "Adds a comment to a ticket. "
-            "The author is always the authenticated user."
+            "Adds a comment to a ticket. The author is always the authenticated user."
         ),
         request=CommentCreateSerializer,
         responses={
             201: CommentSerializer,
-            400: OpenApiResponse(
-                description="Validation error."
-            ),
-            404: OpenApiResponse(
-                description="Ticket not found."
-            ),
+            400: OpenApiResponse(description="Validation error."),
+            404: OpenApiResponse(description="Ticket not found."),
         },
     ),
 )
 # class TicketCommentListCreateView(
 #     generics.ListCreateAPIView
 # ):
-class TicketCommentListCreateView(
-    generics.ListCreateAPIView
-):
+class TicketCommentListCreateView(generics.ListCreateAPIView):
     def get_ticket(self):
         return get_visible_ticket_by_id(
             ticket_id=self.kwargs["ticket_id"],
@@ -90,14 +77,10 @@ class TicketCommentListCreateView(
         ):
             from rest_framework.exceptions import PermissionDenied
 
-            raise PermissionDenied(
-                permission.message
-            )
+            raise PermissionDenied(permission.message)
 
         create_comment(
             ticket=ticket,
             author=self.request.user,
-            message=serializer.validated_data[
-                "message"
-            ],
+            message=serializer.validated_data["message"],
         )

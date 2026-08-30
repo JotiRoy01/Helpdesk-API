@@ -18,9 +18,7 @@ def test_audit_log_creation():
         actor=user,
         action=AuditAction.TICKET_CREATED,
         entity_type="Ticket",
-        entity_id=__import__(
-            "uuid"
-        ).uuid4(),
+        entity_id=__import__("uuid").uuid4(),
         new_value={
             "status": "OPEN",
         },

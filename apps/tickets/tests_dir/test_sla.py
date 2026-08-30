@@ -23,10 +23,7 @@ def test_sla_policy(
     priority,
     hours,
 ):
-    assert (
-        SLA_POLICIES[priority].duration
-        == timedelta(hours=hours)
-    )
+    assert SLA_POLICIES[priority].duration == timedelta(hours=hours)
 
 
 def test_calculate_due_at():
@@ -39,10 +36,10 @@ def test_calculate_due_at():
 
     assert due_at == created_at + timedelta(hours=4)
 
+
 # -------------------------------------
 # test overdue detection
 # -------------------------------------
-from datetime import timedelta
 
 from apps.tickets.constants import (
     TicketPriority,
@@ -52,6 +49,7 @@ from apps.tickets.models import Ticket
 from apps.tickets.overdue import (
     OverdueTicketService,
 )
+
 
 @pytest.mark.django_db
 def test_ticket_is_overdue(
@@ -63,10 +61,14 @@ def test_ticket_is_overdue(
     ticket.due_at = now - timedelta(minutes=1)
     ticket.save()
 
-    assert OverdueTicketService.is_overdue(
-        ticket=ticket,
-        now=now,
-    ) is True
+    assert (
+        OverdueTicketService.is_overdue(
+            ticket=ticket,
+            now=now,
+        )
+        is True
+    )
+
 
 # ---------------------------------------
 # test future ticket is not overdue
@@ -81,10 +83,14 @@ def test_future_ticket_is_not_overdue(
     ticket.due_at = now + timedelta(hours=1)
     ticket.save()
 
-    assert OverdueTicketService.is_overdue(
-        ticket=ticket,
-        now=now,
-    ) is False
+    assert (
+        OverdueTicketService.is_overdue(
+            ticket=ticket,
+            now=now,
+        )
+        is False
+    )
+
 
 # --------------------------------------
 # test resolved ticket is not overdue
@@ -99,10 +105,14 @@ def test_resolved_ticket_is_not_overdue(
     ticket.due_at = now - timedelta(hours=10)
     ticket.save()
 
-    assert OverdueTicketService.is_overdue(
-        ticket=ticket,
-        now=now,
-    ) is False
+    assert (
+        OverdueTicketService.is_overdue(
+            ticket=ticket,
+            now=now,
+        )
+        is False
+    )
+
 
 # ---------------------------------------
 # test closed ticket
@@ -117,10 +127,14 @@ def test_closed_ticket_is_not_overdue(
     ticket.due_at = now - timedelta(hours=10)
     ticket.save()
 
-    assert OverdueTicketService.is_overdue(
-        ticket=ticket,
-        now=now,
-    ) is False
+    assert (
+        OverdueTicketService.is_overdue(
+            ticket=ticket,
+            now=now,
+        )
+        is False
+    )
+
 
 # ---------------------------------------
 # test null deadline
@@ -135,11 +149,13 @@ def test_ticket_without_due_date_is_not_overdue(
     ticket.due_at = None
     ticket.save()
 
-    assert OverdueTicketService.is_overdue(
-        ticket=ticket,
-        now=now,
-    ) is False
-
+    assert (
+        OverdueTicketService.is_overdue(
+            ticket=ticket,
+            now=now,
+        )
+        is False
+    )
 
 
 @pytest.mark.django_db
@@ -152,10 +168,13 @@ def test_ticket_due_exactly_now_is_not_overdue(
     ticket.due_at = now
     ticket.save()
 
-    assert OverdueTicketService.is_overdue(
-        ticket=ticket,
-        now=now,
-    ) is False
+    assert (
+        OverdueTicketService.is_overdue(
+            ticket=ticket,
+            now=now,
+        )
+        is False
+    )
 
 
 from apps.tickets.overdue import (
@@ -205,6 +224,7 @@ def test_overdue_queryset_returns_only_overdue_tickets(
     assert overdue.count() == 1
     assert overdue.first().title == "Overdue ticket"
 
+
 # -------------------------------------
 # test overdue count
 # -------------------------------------
@@ -239,4 +259,3 @@ def test_count_overdue_tickets(
     )
 
     assert count_overdue_tickets() == 2
-

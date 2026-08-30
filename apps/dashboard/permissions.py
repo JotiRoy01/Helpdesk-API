@@ -17,6 +17,7 @@ class CanViewDashboard(BasePermission):
             UserRole.SUPPORT_AGENT,
         }
 
+
 # -------------------------------------------
 # workload endpoint should remain admin-only
 # -------------------------------------------

@@ -3,12 +3,12 @@ from datetime import timedelta
 from django.db import transaction
 from django.utils import timezone
 
-from .constants import TicketPriority, TicketStatus
-from .models import Ticket
-from .sla import calculate_due_at
 from apps.audit.constants import AuditAction
 from apps.audit.services import audit_ticket_action
 
+from .constants import TicketPriority, TicketStatus
+from .models import Ticket
+from .sla import calculate_due_at
 
 SLA_BY_PRIORITY = {
     TicketPriority.LOW: timedelta(hours=72),
@@ -58,6 +58,7 @@ SLA_BY_PRIORITY = {
 #         due_at=due_at,
 #     )
 
+
 @transaction.atomic
 def create_ticket(
     *,
@@ -104,12 +105,10 @@ def create_ticket(
 
 # --------------------------
 # --------------------------
-from django.db import transaction
 from django.core.exceptions import ValidationError
+from django.db import transaction
 
 from apps.users.constants import UserRole
-
-from .models import Ticket
 
 
 @transaction.atomic
@@ -122,19 +121,13 @@ def assign_ticket(
     user_agent="",
 ):
     if actor.role != UserRole.ADMIN:
-        raise ValidationError(
-            "Only administrators can assign tickets."
-        )
+        raise ValidationError("Only administrators can assign tickets.")
 
     if agent.role != UserRole.SUPPORT_AGENT:
-        raise ValidationError(
-            "Tickets can only be assigned to support agents."
-        )
+        raise ValidationError("Tickets can only be assigned to support agents.")
 
     if not agent.is_active:
-        raise ValidationError(
-            "Cannot assign a ticket to an inactive agent."
-        )
+        raise ValidationError("Cannot assign a ticket to an inactive agent.")
 
     previous_agent = ticket.assigned_agent
     ticket.assigned_agent = agent
@@ -155,11 +148,7 @@ def assign_ticket(
         ),
         ticket=ticket,
         old_value={
-            "assigned_agent": (
-                str(previous_agent.id)
-                if previous_agent
-                else None
-            )
+            "assigned_agent": (str(previous_agent.id) if previous_agent else None)
         },
         new_value={"assigned_agent": str(agent.id)},
         ip_address=ip_address,
@@ -167,6 +156,7 @@ def assign_ticket(
     )
 
     return ticket
+
 
 # -------------------------------
 # Create priority update service
@@ -196,5 +186,3 @@ def update_ticket_priority(
     )
 
     return ticket
-
-

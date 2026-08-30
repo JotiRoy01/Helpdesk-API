@@ -2,25 +2,15 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
-from apps.users.constants import UserRole
 from apps.audit.constants import AuditAction
 from apps.audit.services import audit_ticket_action
+from apps.users.constants import UserRole
 
 from .constants import (
     ALLOWED_TRANSITIONS,
     TicketStatus,
 )
 
-from apps.common.exceptions import (
-    DomainValidationError,
-    DomainPermissionError,
-)
-
-from .exceptions import (
-    InvalidTicketTransitionError,
-    TicketAccessDeniedError,
-    TicketAssignmentError,
-)
 
 class TicketWorkflow:
     """
@@ -36,9 +26,7 @@ class TicketWorkflow:
         new_status,
     ):
         if current_status == new_status:
-            raise ValidationError(
-                "Ticket is already in this status."
-            )
+            raise ValidationError("Ticket is already in this status.")
 
         allowed_statuses = ALLOWED_TRANSITIONS.get(
             current_status,
@@ -47,9 +35,9 @@ class TicketWorkflow:
 
         if new_status not in allowed_statuses:
             raise ValidationError(
-                f"Cannot transition ticket from "
-                f"{current_status} to {new_status}."
+                f"Cannot transition ticket from {current_status} to {new_status}."
             )
+
     @staticmethod
     def validate_actor(
         *,
@@ -66,9 +54,7 @@ class TicketWorkflow:
             )
 
         if new_status == TicketStatus.CLOSED:
-            raise ValidationError(
-                "Only admins can close tickets."
-            )
+            raise ValidationError("Only admins can close tickets.")
 
     @staticmethod
     def validate_assignment(*, actor, ticket):
@@ -91,15 +77,7 @@ class TicketWorkflow:
 
     @classmethod
     @transaction.atomic
-    def transition(
-        cls,
-        *,
-        ticket,
-        new_status,
-        actor,
-        ip_address = None,
-        user_agent = ""
-    ):
+    def transition(cls, *, ticket, new_status, actor, ip_address=None, user_agent=""):
         previous_status = ticket.status
 
         cls.validate_assignment(
@@ -152,12 +130,12 @@ class TicketWorkflow:
 
         return ticket
 
+
 # -------------------------------
 # -------------------------------
 
 from rest_framework import serializers
 
-from apps.users.constants import UserRole
 from apps.users.models import User
 
 

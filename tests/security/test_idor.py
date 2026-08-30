@@ -24,7 +24,6 @@ def test_customer_cannot_access_other_customer_ticket(
     assert response.status_code == 404
 
 
-
 def test_customer_cannot_comment_on_other_customer_ticket(
     api_client,
     customer,

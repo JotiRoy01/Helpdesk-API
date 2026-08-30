@@ -1,6 +1,6 @@
 import pytest
-
 from django.core.exceptions import ValidationError
+from rest_framework.test import APIClient
 
 from apps.categories.models import Category
 from apps.tickets.constants import TicketStatus
@@ -8,7 +8,7 @@ from apps.tickets.models import Ticket
 from apps.tickets.services import assign_ticket
 from apps.users.constants import UserRole
 from apps.users.models import User
-from rest_framework.test import APIClient
+
 
 # ------------------------
 # fixtures
@@ -67,6 +67,7 @@ def ticket(db, customer, category):
         status=TicketStatus.OPEN,
     )
 
+
 # ------------------
 # Test successful assigment
 # ------------------
@@ -86,6 +87,7 @@ def test_admin_can_assign_ticket(
 
     assert updated_ticket.assigned_agent == agent
 
+
 # -----------------------------
 # Test customer cannot assign
 # -----------------------------
@@ -101,6 +103,7 @@ def test_customer_cannot_assign_ticket(
             agent=agent,
             actor=customer,
         )
+
 
 # --------------------------
 # Test agent cannot assign
@@ -123,6 +126,7 @@ def test_agent_cannot_assign_ticket(
             actor=agent,
         )
 
+
 # ----------------------------
 # Test invalid target role
 # ----------------------------
@@ -139,6 +143,7 @@ def test_admin_cannot_assign_customer(
             actor=admin,
         )
 
+
 # --------------------------------
 # Test inactive agent
 # --------------------------------
@@ -154,6 +159,7 @@ def test_admin_cannot_assign_inactive_agent(
             agent=inactive_agent,
             actor=admin,
         )
+
 
 # ------------------------------------
 # Test reassignment
@@ -242,6 +248,7 @@ def test_admin_can_use_assignment_endpoint(
 
     assert ticket.assigned_agent == agent
 
+
 # ---------------------------------
 # Test inactive agent at API level
 # ---------------------------------
@@ -260,12 +267,9 @@ def test_admin_cannot_assign_inactive_agent_through_api(
     response = client.post(
         f"/api/v1/tickets/{ticket.id}/assign/",
         {
-            "assigned_agent": str(
-                inactive_agent.id
-            ),
+            "assigned_agent": str(inactive_agent.id),
         },
         format="json",
     )
 
     assert response.status_code == 400
-

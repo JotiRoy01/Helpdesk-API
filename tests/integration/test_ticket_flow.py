@@ -23,23 +23,16 @@ def test_complete_ticket_lifecycle(
 
     assert login_response.status_code == 200
 
-    access_token = (
-        login_response.data["data"]["tokens"]["access"]
-    )
+    access_token = login_response.data["data"]["tokens"]["access"]
 
-    api_client.credentials(
-        HTTP_AUTHORIZATION=f"Bearer {access_token}"
-    )
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
 
     # Create ticket
     create_response = api_client.post(
         "/api/v1/tickets/",
         {
             "title": "VPN connection issue",
-            "description": (
-                "Unable to connect to the "
-                "office VPN."
-            ),
+            "description": ("Unable to connect to the office VPN."),
             "category": str(category.id),
             "priority": TicketPriority.HIGH,
         },
@@ -85,10 +78,7 @@ def test_complete_ticket_lifecycle(
     comment_response = api_client.post(
         f"/api/v1/tickets/{ticket_id}/comments/",
         {
-            "message": (
-                "I am investigating "
-                "the VPN issue."
-            ),
+            "message": ("I am investigating the VPN issue."),
         },
         format="json",
     )

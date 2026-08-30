@@ -1,8 +1,6 @@
-from django.urls import path
-
-from .health import HealthCheckView
 from django.urls import include, path
 
+from .health import HealthCheckView
 
 urlpatterns = [
     path("health/", HealthCheckView.as_view(), name="health"),
@@ -10,10 +8,7 @@ urlpatterns = [
         "categories/",
         include("apps.categories.urls"),
     ),
-    path(
-        "tickets/",
-        include("apps.tickets.urls")
-    ),
+    path("tickets/", include("apps.tickets.urls")),
     path(
         "auth/",
         include("apps.users.urls"),
@@ -23,8 +18,8 @@ urlpatterns = [
         include("apps.comments.urls"),
     ),
     path(
-    "dashboard/",
-    include("apps.dashboard.urls"),
+        "dashboard/",
+        include("apps.dashboard.urls"),
     ),
     path(
         "audit-logs/",

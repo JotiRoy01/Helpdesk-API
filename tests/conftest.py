@@ -1,5 +1,4 @@
 import pytest
-
 from rest_framework.test import APIClient
 
 from apps.categories.models import Category
@@ -130,4 +129,3 @@ def assigned_ticket(customer, agent, category):
         creator=customer,
         assigned_agent=agent,
     )
-

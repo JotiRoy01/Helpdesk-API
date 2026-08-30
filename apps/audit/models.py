@@ -1,5 +1,3 @@
-from django.db import models
-
 # Create your models here.
 import uuid
 
@@ -97,7 +95,4 @@ class AuditLog(models.Model):
         ]
 
     def __str__(self):
-        return (
-            f"{self.action} - "
-            f"{self.entity_type}:{self.entity_id}"
-        )
+        return f"{self.action} - {self.entity_type}:{self.entity_id}"

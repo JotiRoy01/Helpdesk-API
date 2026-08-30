@@ -79,6 +79,7 @@ def test_login_returns_tokens(api_client):
     assert "access" in response.data["data"]["tokens"]
     assert "refresh" in response.data["data"]["tokens"]
 
+
 # wrong password test
 @pytest.mark.django_db
 def test_invalid_login_is_rejected(api_client):
@@ -99,6 +100,7 @@ def test_invalid_login_is_rejected(api_client):
 
     assert response.status_code == 400
 
+
 # protected end point test
 @pytest.mark.django_db
 def test_me_requires_authentication(api_client):
@@ -108,7 +110,9 @@ def test_me_requires_authentication(api_client):
 
     assert response.status_code == 401
 
+
 # then authentication
+
 
 @pytest.mark.django_db
 def test_me_returns_authenticated_user(api_client):
@@ -129,9 +133,7 @@ def test_me_returns_authenticated_user(api_client):
 
     access_token = response.data["data"]["tokens"]["access"]
 
-    api_client.credentials(
-        HTTP_AUTHORIZATION=f"Bearer {access_token}"
-    )
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
 
     response = api_client.get(
         "/api/v1/auth/me/",

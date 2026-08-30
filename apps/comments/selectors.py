@@ -11,8 +11,7 @@ def get_comments_for_ticket(
     ticket_id,
 ) -> QuerySet[Comment]:
     return (
-        Comment.objects
-        .select_related("author")
+        Comment.objects.select_related("author")
         .filter(ticket_id=ticket_id)
         .order_by("created_at")
     )

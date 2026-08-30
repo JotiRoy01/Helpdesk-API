@@ -17,6 +17,7 @@ def test_user_serializer_does_not_expose_password():
 
     assert "password" not in data
 
+
 # ------------------------
 # Token leakage test
 # ------------------------
@@ -34,4 +35,3 @@ def test_user_response_does_not_include_tokens():
 
     assert "access" not in serialized
     assert "refresh" not in serialized
-

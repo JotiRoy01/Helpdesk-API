@@ -1,5 +1,4 @@
 import pytest
-
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
@@ -32,12 +31,11 @@ def test_dashboard_summary_uses_small_number_of_queries():
         creator=user,
     )
 
-    with CaptureQueriesContext(
-        connection
-    ) as queries:
+    with CaptureQueriesContext(connection) as queries:
         get_ticket_summary()
 
     assert len(queries) <= 2
+
 
 # -----------------------------------------
 # Workload query test
@@ -75,9 +73,7 @@ def test_workload_does_not_create_n_plus_one(
         assigned_agent=agent_two,
     )
 
-    with CaptureQueriesContext(
-        connection
-    ) as queries:
+    with CaptureQueriesContext(connection) as queries:
         list(get_agent_workload())
 
     assert len(queries) <= 2

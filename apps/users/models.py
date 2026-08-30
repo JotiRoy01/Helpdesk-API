@@ -1,5 +1,3 @@
-from django.db import models
-
 # Create your models here.
 import uuid
 
@@ -64,11 +62,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_customer(self):
         return self.role == UserRole.CUSTOMER
 
-
     @property
     def is_support_agent(self):
         return self.role == UserRole.SUPPORT_AGENT
-
 
     @property
     def is_admin(self):

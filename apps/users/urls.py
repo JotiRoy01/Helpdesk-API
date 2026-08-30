@@ -8,7 +8,6 @@ from .views import (
     RegisterView,
 )
 
-
 urlpatterns = [
     path(
         "register/",

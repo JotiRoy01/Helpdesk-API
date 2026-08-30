@@ -1,6 +1,7 @@
 import pytest
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+
 from apps.categories.models import Category
 from apps.tickets.constants import TicketStatus
 from apps.tickets.models import Ticket
@@ -64,7 +65,6 @@ def test_open_to_in_progress(ticket, agent):
     assert updated_ticket.status == TicketStatus.IN_PROGRESS
 
 
-
 @pytest.mark.django_db
 def test_in_progress_to_waiting_for_user(
     ticket,
@@ -79,13 +79,11 @@ def test_in_progress_to_waiting_for_user(
         actor=agent,
     )
 
-    assert (
-        updated_ticket.status
-        == TicketStatus.WAITING_FOR_USER
-    )
+    assert updated_ticket.status == TicketStatus.WAITING_FOR_USER
 
 
 # Test resolution
+
 
 @pytest.mark.django_db
 def test_resolve_ticket(ticket, agent):
@@ -101,7 +99,9 @@ def test_resolve_ticket(ticket, agent):
     assert updated_ticket.status == TicketStatus.RESOLVED
     assert updated_ticket.resolved_at is not None
 
+
 # Test admin close
+
 
 @pytest.mark.django_db
 def test_admin_can_close_ticket(
@@ -119,7 +119,6 @@ def test_admin_can_close_ticket(
 
     assert updated_ticket.status == TicketStatus.CLOSED
     assert updated_ticket.closed_at is not None
-
 
 
 # Test agent cannot close
@@ -152,6 +151,7 @@ def test_customer_cannot_change_status(
             actor=customer,
         )
 
+
 # test illegal transition
 @pytest.mark.django_db
 def test_invalid_transition_is_rejected(
@@ -168,6 +168,7 @@ def test_invalid_transition_is_rejected(
 
 # test colsed ticket cannot change
 
+
 @pytest.mark.django_db
 def test_closed_ticket_cannot_transition(
     ticket,
@@ -182,6 +183,7 @@ def test_closed_ticket_cannot_transition(
             new_status=TicketStatus.OPEN,
             actor=admin,
         )
+
 
 # test resolution timestamp
 @pytest.mark.django_db
@@ -202,7 +204,9 @@ def test_resolution_timestamp_is_set(
 
     assert ticket.resolved_at is not None
 
+
 # test reopen bahavior
+
 
 @pytest.mark.django_db
 def test_resolved_ticket_can_return_to_in_progress(
@@ -226,4 +230,3 @@ def test_resolved_ticket_can_return_to_in_progress(
     assert ticket.status == TicketStatus.IN_PROGRESS
     assert ticket.resolved_at == original_resolved_at
     assert ticket.closed_at is None
-

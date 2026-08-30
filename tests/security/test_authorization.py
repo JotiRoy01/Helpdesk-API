@@ -19,7 +19,6 @@ def test_customer_cannot_assign_ticket(
     assert response.status_code == 403
 
 
-
 def test_customer_cannot_close_ticket(
     api_client,
     customer_ticket,

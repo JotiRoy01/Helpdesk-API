@@ -1,11 +1,9 @@
-from django.shortcuts import render
-
 # Create your views here.
 
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from drf_spectacular.utils import extend_schema
 
 from .permissions import CanViewDashboard, IsAdminDashboard
 from .serializers import (
@@ -54,6 +52,7 @@ class DashboardSummaryView(APIView):
 # Create workload view
 # ------------------------------------
 
+
 @extend_schema(
     tags=["Dashboard"],
     summary="Get support-agent workload",
@@ -66,7 +65,7 @@ class DashboardSummaryView(APIView):
 # class DashboardWorkloadView(APIView):
 class DashboardWorkloadView(APIView):
     permission_classes = [
-        #CanViewDashboard,
+        # CanViewDashboard,
         IsAdminDashboard
     ]
 

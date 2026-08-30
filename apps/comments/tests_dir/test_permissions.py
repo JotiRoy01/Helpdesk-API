@@ -70,15 +70,15 @@ def customer_ticket(customer, category):
         creator=customer,
     )
 
+
 # ------------------------------------------
 # Customer can access own ticket comments
 # ------------------------------------------
+from unittest.mock import Mock
+
 from apps.comments.permissions import (
     CanAccessTicketComments,
 )
-
-
-from unittest.mock import Mock
 
 
 @pytest.mark.django_db
@@ -91,11 +91,15 @@ def test_customer_can_access_own_ticket_comments(
 
     permission = CanAccessTicketComments()
 
-    assert permission.has_object_permission(
-        request,
-        None,
-        customer_ticket,
-    ) is True
+    assert (
+        permission.has_object_permission(
+            request,
+            None,
+            customer_ticket,
+        )
+        is True
+    )
+
 
 # --------------------------------
 # Another customer must be denied
@@ -110,11 +114,14 @@ def test_customer_cannot_access_other_customer_comments(
 
     permission = CanAccessTicketComments()
 
-    assert permission.has_object_permission(
-        request,
-        None,
-        customer_ticket,
-    ) is False
+    assert (
+        permission.has_object_permission(
+            request,
+            None,
+            customer_ticket,
+        )
+        is False
+    )
 
 
 # -------------------------------------------
@@ -139,15 +146,20 @@ def test_assigned_agent_can_access_comments(
 
     permission = CanAccessTicketComments()
 
-    assert permission.has_object_permission(
-        request,
-        None,
-        ticket,
-    ) is True
+    assert (
+        permission.has_object_permission(
+            request,
+            None,
+            ticket,
+        )
+        is True
+    )
+
 
 # --------------------------------------------
 # Another agent must be denied
 # --------------------------------------------
+
 
 @pytest.mark.django_db
 def test_other_agent_cannot_access_comments(
@@ -169,11 +181,14 @@ def test_other_agent_cannot_access_comments(
 
     permission = CanAccessTicketComments()
 
-    assert permission.has_object_permission(
-        request,
-        None,
-        ticket,
-    ) is False
+    assert (
+        permission.has_object_permission(
+            request,
+            None,
+            ticket,
+        )
+        is False
+    )
 
 
 # -----------------------------------------
@@ -189,9 +204,11 @@ def test_admin_can_access_any_comments(
 
     permission = CanAccessTicketComments()
 
-    assert permission.has_object_permission(
-        request,
-        None,
-        customer_ticket,
-    ) is True
-
+    assert (
+        permission.has_object_permission(
+            request,
+            None,
+            customer_ticket,
+        )
+        is True
+    )

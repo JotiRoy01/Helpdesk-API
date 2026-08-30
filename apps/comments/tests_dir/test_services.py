@@ -1,7 +1,7 @@
 import pytest
 
-from apps.comments.services import create_comment
 from apps.categories.models import Category
+from apps.comments.services import create_comment
 from apps.tickets.models import Ticket
 from apps.users.constants import UserRole
 from apps.users.models import User
@@ -34,10 +34,8 @@ def test_create_comment():
 
     assert comment.ticket == ticket
     assert comment.author == user
-    assert (
-        comment.message
-        == "I have additional information."
-    )
+    assert comment.message == "I have additional information."
+
 
 # -----------------------------------
 # Test message trimming
@@ -68,4 +66,3 @@ def test_comment_message_is_trimmed():
     )
 
     assert comment.message == "Hello support."
-

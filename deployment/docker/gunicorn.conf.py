@@ -1,10 +1,12 @@
-bind = "0.0.0.0:8000"
+import os
 
-workers = 3
+bind = f"0.0.0.0:{os.environ.get('PORT', '8000')}"
 
-threads = 2
+workers = int(os.environ.get("WEB_CONCURRENCY", "2"))
 
-timeout = 60
+threads = int(os.environ.get("GUNICORN_THREADS", "2"))
+
+timeout = int(os.environ.get("GUNICORN_TIMEOUT", "60"))
 
 graceful_timeout = 30
 
@@ -14,6 +16,9 @@ accesslog = "-"
 
 errorlog = "-"
 
-loglevel = "info"
+loglevel = os.environ.get(
+    "GUNICORN_LOG_LEVEL",
+    "info",
+)
 
 capture_output = True

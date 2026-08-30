@@ -1,7 +1,10 @@
 import pytest
+from django.core.exceptions import ValidationError
 
 from apps.categories.models import Category
+from apps.tickets.constants import TicketStatus
 from apps.tickets.models import Ticket
+from apps.tickets.workflow import TicketWorkflow
 from apps.users.constants import UserRole
 from apps.users.models import User
 
@@ -67,16 +70,15 @@ def customer_ticket(customer, category):
         creator=customer,
     )
 
+
 # Test customer ownership
 @pytest.mark.django_db
 def test_customer_can_access_own_ticket(
     customer,
     customer_ticket,
 ):
-    assert (
-        customer_ticket.creator_id
-        == customer.id
-    )
+    assert customer_ticket.creator_id == customer.id
+
 
 # API-level test is
 from rest_framework.test import APIClient
@@ -113,22 +115,18 @@ def test_customer_sees_only_own_tickets(
         format="json",
     )
 
-    access_token = (
-        response.data["data"]["tokens"]["access"]
-    )
+    access_token = response.data["data"]["tokens"]["access"]
 
-    client.credentials(
-        HTTP_AUTHORIZATION=f"Bearer {access_token}"
-    )
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
 
-    response = client.get(
-        "/api/v1/tickets/"
-    )
+    response = client.get("/api/v1/tickets/")
 
     assert response.status_code == 200
     assert response.data["count"] == 1
 
+
 # test agent visibility
+
 
 @pytest.mark.django_db
 def test_agent_sees_only_assigned_tickets(
@@ -164,20 +162,15 @@ def test_agent_sees_only_assigned_tickets(
         format="json",
     )
 
-    access_token = (
-        response.data["data"]["tokens"]["access"]
-    )
+    access_token = response.data["data"]["tokens"]["access"]
 
-    client.credentials(
-        HTTP_AUTHORIZATION=f"Bearer {access_token}"
-    )
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
 
-    response = client.get(
-        "/api/v1/tickets/"
-    )
+    response = client.get("/api/v1/tickets/")
 
     assert response.status_code == 200
     assert response.data["count"] == 1
+
 
 # test admin visibility
 @pytest.mark.django_db
@@ -211,24 +204,20 @@ def test_admin_sees_all_tickets(
         format="json",
     )
 
-    access_token = (
-        response.data["data"]["tokens"]["access"]
-    )
+    access_token = response.data["data"]["tokens"]["access"]
 
-    client.credentials(
-        HTTP_AUTHORIZATION=f"Bearer {access_token}"
-    )
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
 
-    response = client.get(
-        "/api/v1/tickets/"
-    )
+    response = client.get("/api/v1/tickets/")
 
     assert response.status_code == 200
     assert response.data["count"] == 2
 
+
 # test agent cannot manage another agent's ticket
 @pytest.mark.django_db
 def test_agent_cannot_transition_unassigned_ticket(
+    agent,
     another_agent,
     customer,
     category,
@@ -242,12 +231,13 @@ def test_agent_cannot_transition_unassigned_ticket(
         status="IN_PROGRESS",
     )
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         TicketWorkflow.transition(
             ticket=ticket,
             new_status=TicketStatus.RESOLVED,
             actor=agent,
         )
+
 
 # test customer cannot access another customer's ticket
 @pytest.mark.django_db
@@ -274,29 +264,20 @@ def test_customer_cannot_access_another_customer_ticket(
         format="json",
     )
 
-    access_token = (
-        response.data["data"]["tokens"]["access"]
-    )
+    access_token = response.data["data"]["tokens"]["access"]
 
-    client.credentials(
-        HTTP_AUTHORIZATION=f"Bearer {access_token}"
-    )
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
 
-    response = client.get(
-        f"/api/v1/tickets/{other_ticket.id}/"
-    )
+    response = client.get(f"/api/v1/tickets/{other_ticket.id}/")
 
     assert response.status_code == 404
+
 
 # test unauthorized access
 @pytest.mark.django_db
 def test_unauthenticated_user_cannot_list_tickets():
     client = APIClient()
 
-    response = client.get(
-        "/api/v1/tickets/"
-    )
+    response = client.get("/api/v1/tickets/")
 
     assert response.status_code == 401
-
-    

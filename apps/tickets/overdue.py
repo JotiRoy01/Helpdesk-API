@@ -3,7 +3,6 @@ from django.utils import timezone
 from .constants import TicketStatus
 from .models import Ticket
 
-
 ACTIVE_STATUSES = {
     TicketStatus.OPEN,
     TicketStatus.IN_PROGRESS,
@@ -26,23 +25,6 @@ def is_ticket_overdue(
 
     return ticket.due_at < now
 
-# -----------------------
-# Create the service class
-# -----------------------
-class OverdueTicketService:
-
-    @staticmethod
-    def is_overdue(
-        *,
-        ticket,
-        now=None,
-    ):
-        return is_ticket_overdue(
-            ticket=ticket,
-            now=now,
-        )
-
-
 
 # ---------------------------------------------------
 # create and efficient queryset for overdue tickets
@@ -50,18 +32,15 @@ class OverdueTicketService:
 def overdue_ticket_queryset():
     now = timezone.now()
 
-    return (
-        Ticket.objects
-        .filter(
-            due_at__lt=now,
-            status__in=ACTIVE_STATUSES,
-        )
-        .select_related(
-            "category",
-            "creator",
-            "assigned_agent",
-        )
+    return Ticket.objects.filter(
+        due_at__lt=now,
+        status__in=ACTIVE_STATUSES,
+    ).select_related(
+        "category",
+        "creator",
+        "assigned_agent",
     )
+
 
 # ------------------------------
 # add count helper
@@ -69,14 +48,14 @@ def overdue_ticket_queryset():
 def count_overdue_tickets():
     return overdue_ticket_queryset().count()
 
+
 # --------------------------------
 # add assigned-agent overdue query
-#---------------------------------
+# ---------------------------------
 def overdue_tickets_for_agent(*, agent):
     return overdue_ticket_queryset().filter(
         assigned_agent=agent,
     )
-
 
 
 # ----------------------------------
@@ -94,6 +73,7 @@ def filter_overdue(
         status__in=ACTIVE_STATUSES,
     )
 
+
 def filter_not_overdue(
     queryset,
     *,
@@ -110,11 +90,11 @@ def filter_not_overdue(
         )
     )
 
+
 # ------------------------------------------
 # add an overdue processing operation
 # ------------------------------------------
 class OverdueTicketService:
-
     @staticmethod
     def is_overdue(
         *,
@@ -133,4 +113,3 @@ class OverdueTicketService:
     @staticmethod
     def count():
         return count_overdue_tickets()
-

@@ -1,9 +1,9 @@
 import pytest
-
 from rest_framework.test import APIClient
 
 from apps.users.constants import UserRole
 from apps.users.models import User
+
 
 @pytest.mark.django_db
 def test_customer_cannot_view_audit_logs():
@@ -16,9 +16,7 @@ def test_customer_cannot_view_audit_logs():
     client = APIClient()
     client.force_authenticate(user=customer)
 
-    response = client.get(
-        "/api/v1/audit-logs/"
-    )
+    response = client.get("/api/v1/audit-logs/")
 
     assert response.status_code == 403
 
@@ -37,11 +35,10 @@ def test_agent_cannot_view_audit_logs():
     client = APIClient()
     client.force_authenticate(user=agent)
 
-    response = client.get(
-        "/api/v1/audit-logs/"
-    )
+    response = client.get("/api/v1/audit-logs/")
 
     assert response.status_code == 403
+
 
 # -----------------------
 # Admin
@@ -57,9 +54,6 @@ def test_admin_can_view_audit_logs():
     client = APIClient()
     client.force_authenticate(user=admin)
 
-    response = client.get(
-        "/api/v1/audit-logs/"
-    )
+    response = client.get("/api/v1/audit-logs/")
 
     assert response.status_code == 200
-

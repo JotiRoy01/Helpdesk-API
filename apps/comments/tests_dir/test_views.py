@@ -1,5 +1,4 @@
 import pytest
-
 from rest_framework.test import APIClient
 
 from apps.categories.models import Category
@@ -47,6 +46,7 @@ def test_customer_can_comment_on_own_ticket():
 # Test another customer cannot comment
 # -------------------------------------
 
+
 @pytest.mark.django_db
 def test_customer_cannot_comment_on_other_customer_ticket():
     owner = User.objects.create_user(
@@ -87,9 +87,11 @@ def test_customer_cannot_comment_on_other_customer_ticket():
 
     assert response.status_code == 404
 
+
 # ----------------------------------
 # Test assigned agent comment
 # ----------------------------------
+
 
 @pytest.mark.django_db
 def test_assigned_agent_can_comment():
@@ -183,6 +185,7 @@ def test_unassigned_agent_cannot_comment():
 
     assert response.status_code == 404
 
+
 # -------------------------------------
 # Test admin comment
 # -------------------------------------
@@ -225,4 +228,3 @@ def test_admin_can_comment_on_any_ticket():
     )
 
     assert response.status_code == 201
-

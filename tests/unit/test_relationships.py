@@ -6,11 +6,12 @@ def test_ticket_relationships(
     assert customer_ticket.creator == customer
     assert customer_ticket.category == category
 
+
 def test_comment_relationship(
     customer_ticket,
     customer,
-):
-    ...
+): ...
+
 
 import pytest
 from django.core.exceptions import ValidationError
@@ -32,6 +33,7 @@ def test_ticket_creator_cannot_be_deleted(
 # ---------------------------------
 # test category deletion protection
 # ---------------------------------
+
 
 @pytest.mark.django_db
 def test_category_used_by_ticket_cannot_be_deleted(
@@ -61,9 +63,11 @@ def test_comment_author_cannot_be_deleted(
     with pytest.raises(ProtectedError):
         customer.delete()
 
+
 # --------------------------------------------------
 # Add regression test for closed tickets
 # --------------------------------------------------
+
 
 @pytest.mark.django_db
 def test_closed_ticket_cannot_reopen(
@@ -99,15 +103,18 @@ def test_agent_cannot_close_resolved_ticket(
             actor=agent,
         )
 
+
 # ---------------------------------------------
 # Regression test: overdue resolved ticket
 # ---------------------------------------------
+
 
 @pytest.mark.django_db
 def test_resolved_ticket_is_not_overdue(
     customer_ticket,
 ):
     from datetime import timedelta
+
     from django.utils import timezone
 
     from apps.tickets.overdue import (
@@ -133,6 +140,7 @@ def test_resolved_ticket_is_not_overdue(
 # Regression test: assigned agent isolation
 # ----------------------------------------------------
 
+
 @pytest.mark.django_db
 def test_agent_cannot_see_other_agents_ticket(
     api_client,
@@ -143,15 +151,15 @@ def test_agent_cannot_see_other_agents_ticket(
         user=another_agent,
     )
 
-    response = api_client.get(
-        f"/api/v1/tickets/{assigned_ticket.id}/"
-    )
+    response = api_client.get(f"/api/v1/tickets/{assigned_ticket.id}/")
 
     assert response.status_code == 404
+
 
 # ----------------------------------------------------
 # Test dashboard isolation
 # ----------------------------------------------------
+
 
 @pytest.mark.django_db
 def test_agent_dashboard_does_not_show_global_count(
@@ -162,11 +170,10 @@ def test_agent_dashboard_does_not_show_global_count(
         user=agent,
     )
 
-    response = api_client.get(
-        "/api/v1/dashboard/summary/"
-    )
+    response = api_client.get("/api/v1/dashboard/summary/")
 
     assert response.status_code == 200
+
 
 # -------------------------------------
 # add workload correctness test
@@ -196,9 +203,6 @@ def test_agent_workload_counts_only_assigned_tickets(
         user=admin,
     )
 
-    response = api_client.get(
-        "/api/v1/dashboard/workload/"
-    )
+    response = api_client.get("/api/v1/dashboard/workload/")
 
     assert response.status_code == 200
-

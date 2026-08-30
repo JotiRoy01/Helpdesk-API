@@ -1,14 +1,8 @@
 import django_filters
-
-from django.db import models
 from django.utils import timezone
 
 from .constants import TicketPriority, TicketStatus
 from .models import Ticket
-from .overdue import (
-    filter_not_overdue,
-    filter_overdue,
-)
 
 
 class TicketFilter(django_filters.FilterSet):
@@ -51,10 +45,10 @@ class TicketFilter(django_filters.FilterSet):
         )
 
     def filter_overdue(
-    self,
-    queryset,
-    name,
-    value,
+        self,
+        queryset,
+        name,
+        value,
     ):
         from .overdue import ACTIVE_STATUSES
 
@@ -71,55 +65,3 @@ class TicketFilter(django_filters.FilterSet):
             )
 
         return queryset
-
-def filter_overdue(
-    self,
-    queryset,
-    name,
-    value,
-):
-    if value is True:
-        return filter_overdue(
-            queryset,
-        )
-
-    if value is False:
-        return filter_not_overdue(
-            queryset,
-        )
-
-    return queryset
-
-
-def filter_overdue(
-    self,
-    queryset,
-    name,
-    value,
-):
-    if value is True:
-        return overdue_filter(
-            queryset,
-        )
-
-    if value is False:
-        return overdue_exclude(
-            queryset,
-        )
-
-    return queryset
-
-def filter_not_overdue(
-    queryset,
-    *,
-    now=None,
-):
-    now = now or timezone.now()
-
-    from django.db.models import Q
-
-    return queryset.filter(
-        Q(due_at__gte=now)
-        | Q(due_at__isnull=True)
-        | ~Q(status__in=ACTIVE_STATUSES)
-    )

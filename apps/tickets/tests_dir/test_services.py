@@ -1,6 +1,6 @@
-import pytest
 from datetime import timedelta
 
+import pytest
 from django.utils import timezone
 
 from apps.categories.models import Category
@@ -58,6 +58,7 @@ def test_create_ticket(customer, category):
     assert ticket.priority == TicketPriority.CRITICAL
     assert ticket.due_at is not None
 
+
 # -------------------------------------
 # Test priority update recalculates SLA
 # -------------------------------------
@@ -76,6 +77,4 @@ def test_priority_update_recalculates_due_at(
 
     assert ticket.priority == TicketPriority.CRITICAL
     assert ticket.due_at != original_due_at
-    assert ticket.due_at == (
-        ticket.created_at + timedelta(hours=4)
-    )
+    assert ticket.due_at == (ticket.created_at + timedelta(hours=4))

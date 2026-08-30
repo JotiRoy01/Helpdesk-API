@@ -2,13 +2,10 @@ from django.db.models import Count, Q
 from django.utils import timezone
 
 from apps.tickets.constants import TicketStatus
-from apps.users.constants import UserRole
 from apps.tickets.models import Ticket
-from apps.users.models import User
 from apps.tickets.overdue import ACTIVE_STATUSES
-from django.db.models import Count
-
-
+from apps.users.constants import UserRole
+from apps.users.models import User
 
 
 def get_ticket_summary():
@@ -16,42 +13,36 @@ def get_ticket_summary():
 
     return Ticket.objects.aggregate(
         total=Count("id"),
-
         open=Count(
             "id",
             filter=Q(
                 status=TicketStatus.OPEN,
             ),
         ),
-
         in_progress=Count(
             "id",
             filter=Q(
                 status=TicketStatus.IN_PROGRESS,
             ),
         ),
-
         waiting_for_user=Count(
             "id",
             filter=Q(
                 status=TicketStatus.WAITING_FOR_USER,
             ),
         ),
-
         resolved=Count(
             "id",
             filter=Q(
                 status=TicketStatus.RESOLVED,
             ),
         ),
-
         closed=Count(
             "id",
             filter=Q(
                 status=TicketStatus.CLOSED,
             ),
         ),
-
         overdue=Count(
             "id",
             filter=Q(
@@ -65,13 +56,13 @@ def get_ticket_summary():
         ),
     )
 
+
 # -------------------------------------------------
 # workload should include useful metrics
 # -------------------------------------------------
 def get_agent_workload():
     return (
-        User.objects
-        .filter(
+        User.objects.filter(
             role=UserRole.SUPPORT_AGENT,
             is_active=True,
         )
@@ -79,39 +70,29 @@ def get_agent_workload():
             assigned_ticket_count=Count(
                 "assigned_tickets",
             ),
-
             open_count=Count(
                 "assigned_tickets",
                 filter=Q(
                     assigned_tickets__status=TicketStatus.OPEN,
                 ),
             ),
-
             in_progress_count=Count(
                 "assigned_tickets",
                 filter=Q(
-                    assigned_tickets__status=(
-                        TicketStatus.IN_PROGRESS
-                    ),
+                    assigned_tickets__status=(TicketStatus.IN_PROGRESS),
                 ),
             ),
-
             waiting_for_user_count=Count(
                 "assigned_tickets",
                 filter=Q(
-                    assigned_tickets__status=(
-                        TicketStatus.WAITING_FOR_USER
-                    ),
+                    assigned_tickets__status=(TicketStatus.WAITING_FOR_USER),
                 ),
             ),
-
             overdue_count=Count(
                 "assigned_tickets",
                 filter=Q(
                     assigned_tickets__due_at__lt=timezone.now(),
-                    assigned_tickets__status__in=(
-                        ACTIVE_STATUSES
-                    ),
+                    assigned_tickets__status__in=(ACTIVE_STATUSES),
                 ),
             ),
         )
@@ -132,9 +113,11 @@ def get_agent_workload():
         )
     )
 
+
 # -------------------------------------------
 # Create user-scoped summary selector
 # -------------------------------------------
+
 
 def get_agent_summary(*, agent):
     now = timezone.now()
@@ -143,42 +126,36 @@ def get_agent_summary(*, agent):
         assigned_agent=agent,
     ).aggregate(
         total=Count("id"),
-
         open=Count(
             "id",
             filter=Q(
                 status=TicketStatus.OPEN,
             ),
         ),
-
         in_progress=Count(
             "id",
             filter=Q(
                 status=TicketStatus.IN_PROGRESS,
             ),
         ),
-
         waiting_for_user=Count(
             "id",
             filter=Q(
                 status=TicketStatus.WAITING_FOR_USER,
             ),
         ),
-
         resolved=Count(
             "id",
             filter=Q(
                 status=TicketStatus.RESOLVED,
             ),
         ),
-
         closed=Count(
             "id",
             filter=Q(
                 status=TicketStatus.CLOSED,
             ),
         ),
-
         overdue=Count(
             "id",
             filter=Q(

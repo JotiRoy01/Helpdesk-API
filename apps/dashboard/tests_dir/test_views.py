@@ -1,15 +1,14 @@
 import pytest
-
 from rest_framework.test import APIClient
 
-from apps.users.constants import UserRole
-from apps.users.models import User
-from apps.tickets.constants import TicketStatus
-from apps.tickets.models import Ticket
 from apps.dashboard.selectors import (
     get_agent_summary,
     get_ticket_summary,
 )
+from apps.tickets.constants import TicketStatus
+from apps.tickets.models import Ticket
+from apps.users.constants import UserRole
+from apps.users.models import User
 
 
 @pytest.mark.django_db
@@ -26,11 +25,10 @@ def test_customer_cannot_access_dashboard():
         user=customer,
     )
 
-    response = client.get(
-        "/api/v1/dashboard/summary/"
-    )
+    response = client.get("/api/v1/dashboard/summary/")
 
     assert response.status_code == 403
+
 
 # -----------------------------------------
 # test agent summary
@@ -49,9 +47,7 @@ def test_agent_can_access_own_summary():
         user=agent,
     )
 
-    response = client.get(
-        "/api/v1/dashboard/summary/"
-    )
+    response = client.get("/api/v1/dashboard/summary/")
 
     assert response.status_code == 200
 
@@ -73,11 +69,10 @@ def test_agent_cannot_access_team_workload():
         user=agent,
     )
 
-    response = client.get(
-        "/api/v1/dashboard/workload/"
-    )
+    response = client.get("/api/v1/dashboard/workload/")
 
     assert response.status_code == 403
+
 
 # ----------------------------------------
 # test admin access
@@ -96,11 +91,10 @@ def test_admin_can_access_workload():
         user=admin,
     )
 
-    response = client.get(
-        "/api/v1/dashboard/workload/"
-    )
+    response = client.get("/api/v1/dashboard/workload/")
 
     assert response.status_code == 200
+
 
 # ------------------------------------------
 # test actual summary counts
@@ -174,4 +168,3 @@ def test_agent_summary_is_scoped_to_agent(
     )
 
     assert summary["total"] == 1
-

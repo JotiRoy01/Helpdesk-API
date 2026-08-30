@@ -1,7 +1,7 @@
 import pytest
+from django.core.cache import cache
 
 from .base import *
-
 
 DEBUG = False
 
@@ -22,9 +22,6 @@ CACHES = {
         "LOCATION": "helpdesk-test-cache",
     }
 }
-
-
-from django.core.cache import cache
 
 
 @pytest.fixture(autouse=True)

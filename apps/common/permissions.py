@@ -7,10 +7,7 @@ class IsAuthenticatedUser(BasePermission):
     message = "Authentication is required."
 
     def has_permission(self, request, view):
-        return bool(
-            request.user
-            and request.user.is_authenticated
-        )
+        return bool(request.user and request.user.is_authenticated)
 
 
 class IsAdmin(BasePermission):
@@ -31,7 +28,8 @@ class IsSupportAgentOrAdmin(BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and request.user.role in {
+            and request.user.role
+            in {
                 UserRole.SUPPORT_AGENT,
                 UserRole.ADMIN,
             }
@@ -45,7 +43,8 @@ class IsCustomerOrAdmin(BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and request.user.role in {
+            and request.user.role
+            in {
                 UserRole.CUSTOMER,
                 UserRole.ADMIN,
             }

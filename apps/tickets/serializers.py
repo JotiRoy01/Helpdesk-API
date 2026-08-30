@@ -4,7 +4,7 @@ from apps.categories.models import Category
 from apps.users.constants import UserRole
 from apps.users.models import User
 
-from .constants import TicketPriority, TicketStatus
+from .constants import TicketStatus
 from .models import Ticket
 from .overdue import OverdueTicketService
 
@@ -45,9 +45,6 @@ class TicketCreateSerializer(serializers.ModelSerializer):
         return value
 
 
-
-
-
 class TicketDetailSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(
         source="category.name",
@@ -86,18 +83,14 @@ class TicketDetailSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_creator_name(self, obj) -> str:
-        return (
-            f"{obj.creator.first_name} "
-            f"{obj.creator.last_name}"
-        ).strip()
+        return (f"{obj.creator.first_name} {obj.creator.last_name}").strip()
 
     def get_assigned_agent_name(self, obj) -> str | None:
         if not obj.assigned_agent:
             return None
 
         return (
-            f"{obj.assigned_agent.first_name} "
-            f"{obj.assigned_agent.last_name}"
+            f"{obj.assigned_agent.first_name} {obj.assigned_agent.last_name}"
         ).strip()
 
     def get_is_overdue(self, obj) -> bool:
@@ -148,11 +141,10 @@ class TicketAssignmentSerializer(serializers.Serializer):
 
         return user
 
+
 # ---------------------
 # ---------------------
-class TicketAssignmentResponseSerializer(
-    serializers.ModelSerializer
-):
+class TicketAssignmentResponseSerializer(serializers.ModelSerializer):
     assigned_agent_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -170,8 +162,7 @@ class TicketAssignmentResponseSerializer(
             return None
 
         return (
-            f"{obj.assigned_agent.first_name} "
-            f"{obj.assigned_agent.last_name}"
+            f"{obj.assigned_agent.first_name} {obj.assigned_agent.last_name}"
         ).strip()
 
 
@@ -210,15 +201,11 @@ class TicketListSerializer(serializers.ModelSerializer):
             return None
 
         return (
-            f"{obj.assigned_agent.first_name} "
-            f"{obj.assigned_agent.last_name}"
+            f"{obj.assigned_agent.first_name} {obj.assigned_agent.last_name}"
         ).strip()
 
 
-
-class TicketUpdateSerializer(
-    serializers.ModelSerializer
-):
+class TicketUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
 

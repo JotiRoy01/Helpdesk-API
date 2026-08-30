@@ -19,11 +19,7 @@ class ApplicationError(Exception):
 
         self.message = message or self.default_message
         self.code = code or self.default_code
-        self.status_code = (
-            status_code
-            if status_code is not None
-            else self.status_code
-        )
+        self.status_code = status_code if status_code is not None else self.status_code
         self.errors = errors
 
 
@@ -51,48 +47,26 @@ class ConflictError(ApplicationError):
     default_message = "The requested operation conflicts with the current state."
 
 
-
-# ---------------------------------------
-# Ticket-specific exceptions
-# ---------------------------------------
-from apps.common.exceptions import (
-    ConflictError,
-    DomainPermissionError,
-    DomainValidationError,
-    ResourceNotFoundError,
-)
-
-
 class TicketNotFoundError(ResourceNotFoundError):
     default_code = "TICKET_NOT_FOUND"
     default_message = "Ticket not found."
 
 
-class InvalidTicketTransitionError(
-    DomainValidationError
-):
+class InvalidTicketTransitionError(DomainValidationError):
     default_code = "INVALID_TICKET_TRANSITION"
     default_message = "The requested ticket transition is not allowed."
 
 
-class TicketAccessDeniedError(
-    DomainPermissionError
-):
+class TicketAccessDeniedError(DomainPermissionError):
     default_code = "TICKET_ACCESS_DENIED"
     default_message = "You do not have permission to access this ticket."
 
 
-class TicketAssignmentError(
-    DomainValidationError
-):
+class TicketAssignmentError(DomainValidationError):
     default_code = "INVALID_TICKET_ASSIGNMENT"
     default_message = "The ticket cannot be assigned as requested."
 
 
-class TicketStateConflictError(
-    ConflictError
-):
+class TicketStateConflictError(ConflictError):
     default_code = "TICKET_STATE_CONFLICT"
     default_message = "The ticket state has changed. Please retry."
-
-    

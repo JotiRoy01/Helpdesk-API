@@ -8,3 +8,4 @@ factory-boy
 ruff
 black
 pre-commit
+pip-audit

@@ -13,9 +13,7 @@ def test_user_response_does_not_expose_tokens(
 ):
     from apps.users.serializers import UserSerializer
 
-    data = str(
-        UserSerializer(customer).data
-    )
+    data = str(UserSerializer(customer).data)
 
     assert "access" not in data
     assert "refresh" not in data

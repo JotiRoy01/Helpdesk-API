@@ -1,5 +1,4 @@
 import pytest
-
 from rest_framework.test import APIClient
 
 
@@ -23,7 +22,4 @@ def test_login_is_throttled():
             )
         )
 
-    assert any(
-        response.status_code == 429
-        for response in responses
-    )
+    assert any(response.status_code == 429 for response in responses)

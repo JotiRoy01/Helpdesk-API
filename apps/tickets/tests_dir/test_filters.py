@@ -1,5 +1,7 @@
-import pytest
 from unittest.mock import Mock
+
+import pytest
+
 from apps.categories.models import Category
 from apps.tickets.constants import TicketPriority, TicketStatus
 from apps.tickets.filters import TicketFilter
@@ -52,6 +54,7 @@ def test_filter_by_status():
     assert filtered.count() == 1
     assert filtered.first().status == TicketStatus.OPEN
 
+
 # -------------------------
 # Test priority filtering
 # -------------------------
@@ -95,10 +98,8 @@ def test_filter_by_priority():
     ).qs
 
     assert filtered.count() == 1
-    assert (
-        filtered.first().priority
-        == TicketPriority.CRITICAL
-    )
+    assert filtered.first().priority == TicketPriority.CRITICAL
+
 
 # -----------------------------
 # Test category filtering
@@ -147,6 +148,7 @@ def test_filter_by_category():
     assert filtered.count() == 1
     assert filtered.first().category == network
 
+
 # ---------------------------------
 # Test assigned-agent filtering
 # ---------------------------------
@@ -187,6 +189,7 @@ def test_filter_by_assigned_agent():
 
     assert filtered.count() == 1
 
+
 # ----------------------------------
 # Test pagination limit
 # ----------------------------------
@@ -206,6 +209,7 @@ def test_max_page_size():
     pagination = StandardResultsSetPagination()
 
     assert pagination.max_page_size == 100
+
 
 # ----------------------------------------
 # Test visibility + filtering together
@@ -245,6 +249,7 @@ def test_customer_filter_cannot_escape_ownership(
 
     assert filtered.count() == 1
     assert filtered.first().creator == customer
+
 
 # -------------------------
 # Test search
@@ -295,4 +300,3 @@ def test_ticket_search():
     )
 
     assert filtered.count() == 1
-

@@ -22,9 +22,7 @@ def test_comment_list_has_bounded_queries(
     )
 
     with django_assert_max_num_queries(5):
-        response = api_client.get(
-            f"/api/v1/tickets/{customer_ticket.id}/comments/"
-        )
+        response = api_client.get(f"/api/v1/tickets/{customer_ticket.id}/comments/")
 
     assert response.status_code == 200
 
@@ -48,8 +46,6 @@ def test_comment_list_does_not_have_n_plus_one(
     )
 
     with django_assert_max_num_queries(5):
-        response = api_client.get(
-            f"/api/v1/tickets/{customer_ticket.id}/comments/"
-        )
+        response = api_client.get(f"/api/v1/tickets/{customer_ticket.id}/comments/")
 
     assert response.status_code == 200

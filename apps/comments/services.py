@@ -5,7 +5,6 @@ from apps.audit.services import audit_ticket_action
 
 from .models import Comment
 
-
 # @transaction.atomic
 # def create_comment(
 #     *,
@@ -18,6 +17,7 @@ from .models import Comment
 #         author=author,
 #         message=message.strip(),
 #     )
+
 
 @transaction.atomic
 def create_comment(

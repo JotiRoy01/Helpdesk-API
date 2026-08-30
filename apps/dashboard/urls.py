@@ -5,7 +5,6 @@ from .views import (
     DashboardWorkloadView,
 )
 
-
 urlpatterns = [
     path(
         "summary/",

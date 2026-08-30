@@ -34,6 +34,7 @@ def test_comment_message_is_trimmed():
 
     assert comment.message == "Hello support."
 
+
 from apps.comments.serializers import (
     CommentCreateSerializer,
 )

@@ -1,9 +1,7 @@
 from rest_framework import serializers
 
 
-class DashboardSummarySerializer(
-    serializers.Serializer
-):
+class DashboardSummarySerializer(serializers.Serializer):
     total = serializers.IntegerField()
 
     open = serializers.IntegerField()
@@ -19,9 +17,7 @@ class DashboardSummarySerializer(
     overdue = serializers.IntegerField()
 
 
-class AgentWorkloadSerializer(
-    serializers.Serializer
-):
+class AgentWorkloadSerializer(serializers.Serializer):
     id = serializers.UUIDField()
 
     email = serializers.EmailField()

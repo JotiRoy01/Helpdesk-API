@@ -25,11 +25,7 @@ def test_ticket_not_found_returns_safe_response():
 
     assert response.status_code == 404
     assert response.data["success"] is False
-    assert (
-        response.data["code"]
-        == "TICKET_NOT_FOUND"
-    )
-
+    assert response.data["code"] == "TICKET_NOT_FOUND"
 
 
 @pytest.mark.django_db
@@ -56,8 +52,4 @@ def test_private_ticket_does_not_leak_as_forbidden(
 
     assert response.status_code == 404
 
-    assert (
-        response.data["code"]
-        == "TICKET_NOT_FOUND"
-    )
-
+    assert response.data["code"] == "TICKET_NOT_FOUND"

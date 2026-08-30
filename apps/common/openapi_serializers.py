@@ -1,9 +1,7 @@
 from rest_framework import serializers
 
 
-class ErrorResponseSerializer(
-    serializers.Serializer
-):
+class ErrorResponseSerializer(serializers.Serializer):
     success = serializers.BooleanField(
         default=False,
     )

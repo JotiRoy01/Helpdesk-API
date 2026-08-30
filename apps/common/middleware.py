@@ -15,9 +15,7 @@ class RequestIDMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        request_id = request.headers.get(
-            self.HEADER_NAME
-        ) or str(uuid.uuid4())
+        request_id = request.headers.get(self.HEADER_NAME) or str(uuid.uuid4())
 
         request.request_id = request_id
 

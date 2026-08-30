@@ -3,10 +3,8 @@ import pytest
 from apps.audit.constants import AuditAction
 from apps.audit.models import AuditLog
 from apps.categories.models import Category
-from apps.tickets.constants import TicketPriority
-from apps.tickets.constants import TicketStatus
-from apps.tickets.services import create_ticket
-from apps.tickets.services import assign_ticket
+from apps.tickets.constants import TicketPriority, TicketStatus
+from apps.tickets.services import assign_ticket, create_ticket
 from apps.tickets.workflow import TicketWorkflow
 from apps.users.constants import UserRole
 from apps.users.models import User
@@ -40,7 +38,6 @@ def test_ticket_creation_creates_audit():
     assert audit.actor == customer
 
 
-
 @pytest.mark.django_db
 def test_assignment_creates_audit(
     admin,
@@ -59,9 +56,7 @@ def test_assignment_creates_audit(
     ).first()
 
     assert audit is not None
-    assert audit.new_value["assigned_agent"] == str(
-        agent.id
-    )
+    assert audit.new_value["assigned_agent"] == str(agent.id)
 
 
 # ----------------------------
@@ -99,6 +94,7 @@ def test_reassignment_creates_correct_audit(
     assert audit.old_value["assigned_agent"] == str(agent.id)
     assert audit.new_value["assigned_agent"] == str(second_agent.id)
 
+
 # ---------------------------------------
 # Test workflow audit
 # ---------------------------------------
@@ -112,5 +108,3 @@ def test_status_transition_creates_audit(
         new_status=TicketStatus.CLOSED,
         actor=admin,
     )
-
-

@@ -1,13 +1,13 @@
-import pytest
-
-from apps.tickets.tasks import process_overdue_tickets
 from datetime import timedelta
+
+import pytest
 
 # pyrefly: ignore [missing-import]
 from django.utils import timezone
 
 from apps.tickets.constants import TicketStatus
 from apps.tickets.models import Ticket
+from apps.tickets.tasks import process_overdue_tickets
 
 
 @pytest.mark.django_db
@@ -20,7 +20,6 @@ def test_process_overdue_tickets():
 # -----------------------------------
 # test SLA task with overdue ticket
 # -----------------------------------
-
 
 
 @pytest.mark.django_db

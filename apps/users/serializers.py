@@ -1,9 +1,7 @@
 from django.contrib.auth import authenticate, password_validation
 from rest_framework import serializers
 
-from .constants import UserRole
 from .models import User
-from .services import register_user
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -56,9 +54,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         email = value.strip().lower()
 
         if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError(
-                "A user with this email already exists."
-            )
+            raise serializers.ValidationError("A user with this email already exists.")
 
         return email
 
@@ -67,11 +63,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         if password != attrs["password_confirmation"]:
             raise serializers.ValidationError(
-                {
-                    "password_confirmation": (
-                        "Passwords do not match."
-                    )
-                }
+                {"password_confirmation": ("Passwords do not match.")}
             )
 
         password_validation.validate_password(
@@ -84,7 +76,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data.pop("password_confirmation")
 
         return User.objects.create_user(
-            #role=UserRole.CUSTOMER,
+            # role=UserRole.CUSTOMER,
             **validated_data,
         )
 
@@ -106,23 +98,17 @@ class LoginSerializer(serializers.Serializer):
         )
 
         if user is None:
-            raise serializers.ValidationError(
-                "Invalid email or password."
-            )
+            raise serializers.ValidationError("Invalid email or password.")
 
         if not user.is_active:
-            raise serializers.ValidationError(
-                "This account is inactive."
-            )
+            raise serializers.ValidationError("This account is inactive.")
 
         attrs["user"] = user
 
         return attrs
 
 
-class RegisterResponseSerializer(
-    serializers.Serializer
-):
+class RegisterResponseSerializer(serializers.Serializer):
     success = serializers.BooleanField()
     message = serializers.CharField()
     data = UserSerializer()
@@ -131,23 +117,17 @@ class RegisterResponseSerializer(
     )
 
 
-class TokenPairSerializer(
-    serializers.Serializer
-):
+class TokenPairSerializer(serializers.Serializer):
     access = serializers.CharField()
     refresh = serializers.CharField()
 
 
-class LoginDataSerializer(
-    serializers.Serializer
-):
+class LoginDataSerializer(serializers.Serializer):
     user = UserSerializer()
     tokens = TokenPairSerializer()
 
 
-class LoginResponseSerializer(
-    serializers.Serializer
-):
+class LoginResponseSerializer(serializers.Serializer):
     success = serializers.BooleanField()
     message = serializers.CharField()
     data = LoginDataSerializer()

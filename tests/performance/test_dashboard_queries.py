@@ -9,12 +9,9 @@ def test_dashboard_summary_uses_bounded_queries(
     django_assert_max_num_queries,
 ):
     with django_assert_max_num_queries(3):
-        response = authenticated_admin.get(
-            "/api/v1/dashboard/summary/"
-        )
+        response = authenticated_admin.get("/api/v1/dashboard/summary/")
 
     assert response.status_code == 200
-
 
 
 @pytest.mark.django_db
@@ -25,9 +22,7 @@ def test_dashboard_workload_avoids_n_plus_one(
     django_assert_max_num_queries,
 ):
     with django_assert_max_num_queries(3):
-        response = authenticated_admin.get(
-            "/api/v1/dashboard/workload/"
-        )
+        response = authenticated_admin.get("/api/v1/dashboard/workload/")
 
     assert response.status_code == 200
 
@@ -47,19 +42,13 @@ def test_ticket_list_pagination_and_filters(
             creator=customer,
         )
 
-    response = authenticated_customer.get(
-        "/api/v1/tickets/?page_size=20"
-    )
+    response = authenticated_customer.get("/api/v1/tickets/?page_size=20")
     assert len(response.data["results"]) <= 20
 
-    response = authenticated_customer.get(
-        "/api/v1/tickets/?page_size=100000"
-    )
+    response = authenticated_customer.get("/api/v1/tickets/?page_size=100000")
     assert len(response.data["results"]) <= 100
 
-    response = authenticated_customer.get(
-        "/api/v1/tickets/?ordering=password"
-    )
+    response = authenticated_customer.get("/api/v1/tickets/?ordering=password")
     assert response.status_code == 200
 
     response = authenticated_customer.get(

@@ -1,8 +1,6 @@
 from django.contrib import admin
 
 # Register your models here.
-from django.contrib import admin
-
 from .models import Category
 
 
@@ -15,9 +13,7 @@ class CategoryAdmin(admin.ModelAdmin):
         "updated_at",
     )
 
-    list_filter = (
-        "is_active",
-    )
+    list_filter = ("is_active",)
 
     search_fields = (
         "name",
@@ -30,6 +26,4 @@ class CategoryAdmin(admin.ModelAdmin):
         "updated_at",
     )
 
-    ordering = (
-        "name",
-    )
+    ordering = ("name",)
