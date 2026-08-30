@@ -12,9 +12,7 @@ def test_assignment_and_audit_are_atomic(
     monkeypatch,
 ):
     def fail_audit(**kwargs):
-        raise RuntimeError(
-            "Simulated audit failure"
-        )
+        raise RuntimeError("Simulated audit failure")
 
     monkeypatch.setattr(
         "apps.tickets.services.audit_ticket_action",
