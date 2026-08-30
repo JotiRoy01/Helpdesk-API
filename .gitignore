@@ -238,3 +238,4 @@ schema.yml
 
 !.env.example
 Dockerfile
+.github/workflows/security.yml
